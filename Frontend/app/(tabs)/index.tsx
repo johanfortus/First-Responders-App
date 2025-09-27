@@ -3,8 +3,11 @@ import { Link } from "expo-router";
 
 export default function Index() {
   return (
-    <View style={styles.container}>
-      <Text>Home Page</Text>
+    <View>
+      <Text style={styles.homeHeader}>Home</Text>
+      <View>
+        
+      </View>
       <Link href="../contacts" style={styles.visitLink}>Visit Contacts Page</Link>
       <Link href="../checkin" style={styles.visitLink}>Visit Checkin Page</Link>
     </View>
@@ -12,13 +15,10 @@ export default function Index() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-      flex: 1,
-      justifyContent: "center",
-      alignItems: "center",
-  },
   homeHeader: {
-    fontFamily: 
+    fontSize: 24,
+    fontWeight: '600',
+    marginTop: 28,
   },
   visitLink: {
     marginTop: 10,
