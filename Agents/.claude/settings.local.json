@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c/Users/desti/Projects/First-Responders-App/**)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

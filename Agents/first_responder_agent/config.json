@@ -1,0 +1,43 @@
+{
+  "thresholds": {
+    "notify_checkin": 0.55,
+    "auto_escalate": 0.78,
+    "suicide_phrase": true
+  },
+  "escalation": [
+    {
+      "name": "PeerMentor",
+      "channel": "sms",
+      "cooldownH": 12
+    },
+    {
+      "name": "Clinician",
+      "channel": "call_or_link",
+      "slaMin": 30
+    },
+    {
+      "name": "EmergencyContact",
+      "channel": "call",
+      "requireConsent": true
+    }
+  ],
+  "followUps": {
+    "day1": true,
+    "day3": true,
+    "day7": "if score>0.6"
+  },
+  "high_risk_keywords": [
+    "fatality", "death", "deceased", "pediatric", "child", "infant",
+    "officer down", "shooting", "gun", "weapon", "domestic violence",
+    "suicide", "overdose", "mci", "mass casualty", "explosion",
+    "fire", "burn", "trapped", "entrapment", "cardiac arrest"
+  ],
+  "mental_health_indicators": {
+    "positive": ["fine", "good", "okay", "managing", "coping", "stable"],
+    "concerning": ["tired", "stressed", "overwhelmed", "difficult", "tough"],
+    "critical": [
+      "can't cope", "breaking point", "suicide", "hurt myself",
+      "end it", "give up", "no point", "worthless"
+    ]
+  }
+}

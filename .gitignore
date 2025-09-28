@@ -1,4 +1,11 @@
 # Learn more https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
 # .vscode
 .vscode/
 

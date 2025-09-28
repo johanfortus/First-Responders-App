@@ -42,6 +42,56 @@ To learn more about developing your project with Expo, look at the following res
 - [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
 - [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
 
+## Agents Setup
+
+The `Agents/` directory contains intelligent agents built with Google's Agent Development Kit (ADK).
+
+### Prerequisites
+- Python 3.8+
+- Google Cloud Project with appropriate APIs enabled
+- Google API key with Agent Development Kit access
+
+### Setup Instructions
+
+1. **Navigate to agents directory:**
+   ```bash
+   cd Agents
+   ```
+
+2. **Create and activate virtual environment:**
+   ```bash
+   python -m venv .venv
+
+   # On Windows
+   .venv\Scripts\activate
+
+   # On macOS/Linux
+   source .venv/bin/activate
+   ```
+
+3. **Install dependencies:**
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+4. **Configure environment variables:**
+   Update `.env` file with your Google Cloud credentials:
+   ```
+   GOOGLE_API_KEY=your_google_api_key_here
+   GOOGLE_CLOUD_PROJECT=your_project_id
+   GOOGLE_CLOUD_LOCATION=global
+   ```
+
+5. **Test the setup:**
+   ```bash
+   python test.py
+   ```
+
+6. **Deploy agent (optional):**
+   ```bash
+   adk deploy cloud_run --project=$env:GOOGLE_CLOUD_PROJECT --region=$env:GOOGLE_CLOUD_LOCATION --service_name=multi-tool-agent-service --app_name=multi-tool-agent-app --with_ui multi_tool_agent
+   ```
+
 ## Join the community
 
 Join our community of developers creating universal apps.
