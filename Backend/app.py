@@ -5,6 +5,8 @@ import certifi
 import json
 import os
 import sys
+import threading
+import time
 from datetime import datetime
 from dotenv import load_dotenv
 
@@ -45,6 +47,49 @@ except Exception as e:
 
 db = client["development"]
 collection = db["call_records"]
+
+# Load threshold configuration
+def load_threshold_config():
+    config_path = os.path.join(parent_dir, "Agents", "first_responder_agent", "config.json")
+    try:
+        with open(config_path, 'r') as f:
+            config = json.load(f)
+            return config.get("thresholds", {}).get("auto_escalate", 0.78)
+    except Exception as e:
+        print(f"Failed to load threshold config: {e}")
+        return 0.78  # Default threshold
+
+CHAT_TRIGGER_THRESHOLD = load_threshold_config()
+
+def trigger_chat_after_delay(user_id, call_id, severity_score, delay_seconds=10):
+    """
+    Trigger chat in frontend after specified delay if severity meets threshold
+    """
+    def delayed_trigger():
+        time.sleep(delay_seconds)
+        try:
+            # Create notification payload for chat trigger
+            chat_trigger_payload = {
+                "user_id": user_id,
+                "call_id": call_id,
+                "severity_score": severity_score,
+                "action": "trigger_chat",
+                "timestamp": datetime.now().isoformat()
+            }
+
+            # Store the chat trigger event in database for frontend to check
+            chat_collection = db["chat_triggers"]
+            chat_collection.insert_one(chat_trigger_payload)
+
+            print(f"Chat triggered for user {user_id} after {delay_seconds} seconds due to severity {severity_score}")
+
+        except Exception as e:
+            print(f"Failed to trigger chat for user {user_id}: {e}")
+
+    # Start the delayed trigger in a separate thread
+    trigger_thread = threading.Thread(target=delayed_trigger)
+    trigger_thread.daemon = True
+    trigger_thread.start()
 
 # -----------------------------
 # Home route
@@ -178,6 +223,23 @@ def analyze_call():
             call_id=data["call_id"],
             user_id=data["user_id"]
         )
+
+        # Check if severity score meets threshold for chat trigger
+        if result["status"] == "success" and "severity_score" in result:
+            severity_score = result["severity_score"] / 100.0  # Convert to 0-1 scale to match threshold
+            if severity_score >= CHAT_TRIGGER_THRESHOLD:
+                # Trigger chat after 10 seconds
+                trigger_chat_after_delay(
+                    user_id=data["user_id"],
+                    call_id=data["call_id"],
+                    severity_score=result["severity_score"]
+                )
+                result["chat_trigger_scheduled"] = True
+                result["threshold_met"] = True
+            else:
+                result["chat_trigger_scheduled"] = False
+                result["threshold_met"] = False
+
         return jsonify(result), 200 if result["status"] == "success" else 500
 
     except Exception as e:
@@ -247,6 +309,103 @@ def send_notification_endpoint():
         "status": "success",
         "message": "Notification sent successfully"
     }), 200
+
+
+# -----------------------------
+# Chat trigger endpoints
+# -----------------------------
+@app.route('/users/<user_id>/chat-triggers', methods=['GET'])
+def get_chat_triggers(user_id):
+    """Get pending chat triggers for a user"""
+    try:
+        chat_collection = db["chat_triggers"]
+
+        # Find all unread chat triggers for this user
+        triggers = list(chat_collection.find(
+            {"user_id": user_id, "read": {"$ne": True}},
+            {"_id": 0}
+        ).sort("timestamp", -1))
+
+        return jsonify({
+            "status": "success",
+            "triggers": triggers,
+            "count": len(triggers)
+        }), 200
+
+    except Exception as e:
+        return jsonify({
+            "status": "error",
+            "error_message": f"Failed to get chat triggers: {str(e)}"
+        }), 500
+
+
+@app.route('/users/<user_id>/chat-triggers/<trigger_id>/mark-read', methods=['POST'])
+def mark_chat_trigger_read(user_id, trigger_id):
+    """Mark a chat trigger as read"""
+    try:
+        chat_collection = db["chat_triggers"]
+
+        # Update the trigger to mark it as read
+        result = chat_collection.update_one(
+            {"user_id": user_id, "timestamp": trigger_id},
+            {"$set": {"read": True, "read_at": datetime.now().isoformat()}}
+        )
+
+        if result.matched_count == 0:
+            return jsonify({
+                "status": "error",
+                "error_message": "Chat trigger not found"
+            }), 404
+
+        return jsonify({
+            "status": "success",
+            "message": "Chat trigger marked as read"
+        }), 200
+
+    except Exception as e:
+        return jsonify({
+            "status": "error",
+            "error_message": f"Failed to mark chat trigger as read: {str(e)}"
+        }), 500
+
+
+@app.route('/trigger-chat', methods=['POST'])
+def manual_trigger_chat():
+    """Manually trigger chat for testing purposes"""
+    data = request.json
+
+    # Validate required fields
+    required_fields = ["user_id", "call_id", "severity_score"]
+    for field in required_fields:
+        if field not in data:
+            return jsonify({"error": f"Missing field: {field}"}), 400
+
+    try:
+        # Immediately trigger chat without delay (for testing)
+        chat_trigger_payload = {
+            "user_id": data["user_id"],
+            "call_id": data["call_id"],
+            "severity_score": data["severity_score"],
+            "action": "trigger_chat",
+            "timestamp": datetime.now().isoformat(),
+            "manual_trigger": True
+        }
+
+        # Store the chat trigger event in database
+        chat_collection = db["chat_triggers"]
+        result = chat_collection.insert_one(chat_trigger_payload)
+
+        return jsonify({
+            "status": "success",
+            "message": "Chat triggered successfully",
+            "trigger_id": str(result.inserted_id)
+        }), 200
+
+    except Exception as e:
+        return jsonify({
+            "status": "error",
+            "error_message": f"Failed to trigger chat: {str(e)}"
+        }), 500
 
 
 if __name__ == "__main__":
