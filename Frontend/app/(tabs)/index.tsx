@@ -5,6 +5,7 @@ import makeCall from "../../utils/makeCall";
 import sendSMS from "../../utils/sendSMS";
 import ImportantNumbers from "../ImportantNumbers";
 import ResourcesModal from "../ResourcesModal";
+import WebSocketClient from "../../components/WebSocketClient";
 
 export default function Index() {
 	const [numbersModalVisible, setNumbersModalVisible] = useState(false);
@@ -21,6 +22,7 @@ export default function Index() {
 					</View>
 					<Image source={require('../../assets/images/stroke.png')} style={styles.strokeGraphic}/>
 				</View>
+				<WebSocketClient userid="user_001" token="GFDSINE#4^&34KFV" />
 
 				{/* <Link href="../contacts" style={styles.visitLink}>Visit Contacts Page</Link>
 				<Link href="../checkin" style={styles.visitLink}>Visit Checkin Page</Link> */}

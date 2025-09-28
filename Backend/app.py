@@ -4,8 +4,11 @@ import certifi
 import json
 import os 
 from datetime import datetime
+from flask_socketio import SocketIO, emit
 
 app = Flask(__name__)
+app.config['SECRET_KEY'] = 'GFDSINE#4^&34KFV' 
+socketio = SocketIO(app, cors_allowed_origins="*", logger=True, engineio_logger=True)
 
 # Connect to MongoDB Atlas
 MONGO_URI = "mongodb+srv://destingollamudi_db_user:R550jzYyB6L88CS6@first-responders.ybbrqtf.mongodb.net/development?retryWrites=true&w=majority"
@@ -91,5 +94,19 @@ def put_call(userID):
     }), 200
 
 
-if __name__ == "__main__":
-    app.run(debug=True)
+@socketio.on('connect')
+def handle_connect():
+    print('Client connected')
+
+@socketio.on('disconnect')
+def handle_disconnect():
+    print('Client disconnected')
+
+@socketio.on('message')
+def handle_message(data):
+    print('received message: ' + data)
+    emit('response', 'Server received: ' + data) 
+
+
+if __name__ == '__main__':
+    socketio.run(app, host='127.0.0.1', port=5000)
