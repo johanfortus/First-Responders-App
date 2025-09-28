@@ -81,34 +81,7 @@ def home():
 @app.route('/call', methods=['POST'])
 def add_call():
     data = request.json
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
 
-<<<<<<< HEAD
-=======
-    callID = len(collection = db["call_records"].find()) + 1
-
->>>>>>> a1bfbb7 (pusshog)
-=======
-    
->>>>>>> 149f6a5 (pussghing)
-=======
-
->>>>>>> 1658a2e (put)
-=======
-
-    callID = len(collection = db["call_records"].find()) + 1
-
->>>>>>> 31209f4 (initial backend setup)
-=======
-    
->>>>>>> 7c01482 (call handling)
-=======
-
->>>>>>> 447e090 (user input)
     # Validate required fields
     required_fields = ["callID", "userID", "transcripts", "severityScore", "date"]
     for field in required_fields:
@@ -123,23 +96,7 @@ def add_call():
 
     # Prepare new call document
     new_call = {
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
         "callID": data["callID"],
-=======
-        "callID": callID,
->>>>>>> a1bfbb7 (pusshog)
-=======
-        "callID": data["callID"],
->>>>>>> 149f6a5 (pussghing)
-=======
-        "callID": callID,
->>>>>>> 31209f4 (initial backend setup)
-=======
-        "callID": data["callID"],
->>>>>>> 7c01482 (call handling)
         "userID": data["userID"],
         "transcripts": data["transcripts"],
         "severityScore": data["severityScore"],
@@ -155,12 +112,6 @@ def add_call():
     }), 201
 
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
 @app.route('/user/<userID>', methods=['PUT'])
 def put_call(userID):
     data = request.json
@@ -205,124 +156,6 @@ def put_call(userID):
         "message": f"Successfully added callID {callID} to user {userID}",
         "user": updated_user
     }), 200
-=======
-# @app.route('/users/<userID>', methods=['GET'])
-# def get_user(userID):
-#     collection = db["users"]
-=======
-@app.route('/users/<userID>', methods=['GET'])
-def get_user(userID):
-    collection = db["users"]
->>>>>>> 149f6a5 (pussghing)
-
-    # Find the user document by userID (string)
-=======
-@app.route('/user/<userID>', methods=['PUT'])
-def put_call(userID):
-    data = request.json
-    collection = db["users"]
-=======
-@app.route('/user/<userID>', methods=['PUT'])
-def put_call(userID):
-    data = request.json
-    collection = db["users"]
->>>>>>> 447e090 (user input)
-    
-    # Validate request data
-    if not data or 'callID' not in data:
-        return jsonify({"error": "callID is required in request body"}), 400
-    
-    try:
-        callID = int(data['callID'])
-    except (ValueError, TypeError):
-        return jsonify({"error": "callID must be a valid integer"}), 400
-    
-    # Find the user document by userID
-<<<<<<< HEAD
->>>>>>> 1658a2e (put)
-    user = collection.find_one({"userID": userID})
-    
-    if not user:
-        return jsonify({"error": f"No user found with userID {userID}"}), 404
-<<<<<<< HEAD
-
-<<<<<<< HEAD
-#     print("User document:", user)  # Debug print
-#     return jsonify(user)
->>>>>>> a1bfbb7 (pusshog)
-=======
-    print("User document:", user)  # Debug print
-    return jsonify(user)
->>>>>>> 149f6a5 (pussghing)
-=======
-    
-    # Append the callID to the calls array
-    result = collection.update_one(
-        {"userID": userID},
-        {"$push": {"calls": callID}}
-    )
-    
-    if result.modified_count == 0:
-        return jsonify({"error": "Failed to update user"}), 500
-    
-    # Get the updated user document
-    updated_user = collection.find_one({"userID": userID}, {"_id": 0})
-    
-    print("Updated user document:", updated_user)  # Debug print
-    
-    return jsonify({
-        "message": f"Successfully added callID {callID} to user {userID}",
-        "user": updated_user
-    }), 200
->>>>>>> 1658a2e (put)
-=======
-# @app.route('/users/<userID>', methods=['GET'])
-# def get_user(userID):
-#     collection = db["users"]
-=======
-@app.route('/users/<userID>', methods=['GET'])
-def get_user(userID):
-    collection = db["users"]
->>>>>>> 7c01482 (call handling)
-
-    # Find the user document by userID (string)
-=======
->>>>>>> 447e090 (user input)
-    user = collection.find_one({"userID": userID})
-    
-    if not user:
-        return jsonify({"error": f"No user found with userID {userID}"}), 404
-<<<<<<< HEAD
-
-<<<<<<< HEAD
-#     print("User document:", user)  # Debug print
-#     return jsonify(user)
->>>>>>> 31209f4 (initial backend setup)
-=======
-    print("User document:", user)  # Debug print
-    return jsonify(user)
->>>>>>> 7c01482 (call handling)
-=======
-    
-    # Append the callID to the calls array
-    result = collection.update_one(
-        {"userID": userID},
-        {"$push": {"calls": callID}}
-    )
-    
-    if result.modified_count == 0:
-        return jsonify({"error": "Failed to update user"}), 500
-    
-    # Get the updated user document
-    updated_user = collection.find_one({"userID": userID}, {"_id": 0})
-    
-    print("Updated user document:", updated_user)  # Debug print
-    
-    return jsonify({
-        "message": f"Successfully added callID {callID} to user {userID}",
-        "user": updated_user
-    }), 200
->>>>>>> 447e090 (user input)
 
 
 # -----------------------------
