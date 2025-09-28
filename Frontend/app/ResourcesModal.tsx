@@ -1,7 +1,7 @@
 import { View, Text, StyleSheet } from 'react-native'
 import React from 'react'
 
-export default function resources() {
+const ResourcesModal = () => {
   return (
     <View style={styles.container}>
       <Text>resources</Text>
@@ -16,3 +16,5 @@ const styles = StyleSheet.create({
         alignItems: "center",
     }
 })
+
+export default ResourcesModal;
