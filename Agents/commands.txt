@@ -1,0 +1,7 @@
+adk deploy cloud_run `
+  --project=$env:GOOGLE_CLOUD_PROJECT `
+  --region=$env:GOOGLE_CLOUD_LOCATION `
+  --service_name=multi-tool-agent-service `
+  --app_name=multi-tool-agent-app `
+  --with_ui `
+  multi_tool_agent
