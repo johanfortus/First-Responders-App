@@ -36,25 +36,23 @@ def analyze_call_and_update_wellness(transcript: str, call_id: int, user_id: str
         # Calculate severity score (1-100) using only transcript
         severity_score = calculate_severity_score(transcript, user_id, config)
 
-        # Create call record matching new database schema
+        # Create call record matching backend schema
         call_record = {
             "callID": call_id,
-            "transcript": transcript,
+            "transcripts": transcript,
             "severityScore": severity_score,
-            "day": datetime.now(),
+            "date": datetime.now().isoformat(),
             "userID": user_id
         }
         
         # Store call in database
-        call_result = send_to_backend("calls", call_record)
+        call_result = send_to_backend("call", call_record)
 
-        # Add call_id to user's calls array (backend handles this)
+        # Add call_id to user's calls array using existing PUT endpoint
         user_call_update = {
-            "user_id": user_id,
-            "call_id": call_id,
-            "action": "add_call"
+            "callID": call_id
         }
-        backend_result = send_to_backend("users/add_call", user_call_update)
+        backend_result = send_to_backend(f"user/{user_id}", user_call_update, method="PUT")
 
         # Calculate new wellness scores including this call's severity
         wellness_scores = calculate_wellness_scores(user_id, severity_score)

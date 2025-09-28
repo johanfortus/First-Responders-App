@@ -1,4 +1,5 @@
 {
+  "backend_url": "http://127.0.0.1:5000",
   "thresholds": {
     "notify_checkin": 0.55,
     "auto_escalate": 0.78,
