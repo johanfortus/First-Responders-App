@@ -44,12 +44,16 @@ def home():
 @app.route('/call', methods=['POST'])
 def add_call():
     data = request.json
+<<<<<<< HEAD
 
 <<<<<<< HEAD
 =======
     callID = len(collection = db["call_records"].find()) + 1
 
 >>>>>>> add0c6e (add Flask app with MongoDB integration and call endpoint)
+=======
+    
+>>>>>>> 3ea7351 (correct callID handling and enable get_user endpoint)
     # Validate required fields
     required_fields = ["userID", "transcripts", "severityScore", "date"]
     for field in required_fields:
@@ -65,10 +69,14 @@ def add_call():
     # Prepare new call document
     new_call = {
 <<<<<<< HEAD
+<<<<<<< HEAD
         "callID": data["callID"],
 =======
         "callID": callID,
 >>>>>>> add0c6e (add Flask app with MongoDB integration and call endpoint)
+=======
+        "callID": data["callID"],
+>>>>>>> 3ea7351 (correct callID handling and enable get_user endpoint)
         "userID": data["userID"],
         "transcripts": data["transcripts"],
         "severityScore": data["severityScore"],
@@ -84,6 +92,7 @@ def add_call():
     }), 201
 
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 @app.route('/user/<userID>', methods=['PUT'])
 def put_call(userID):
@@ -127,16 +136,26 @@ def put_call(userID):
 # @app.route('/users/<userID>', methods=['GET'])
 # def get_user(userID):
 #     collection = db["users"]
+=======
+@app.route('/users/<userID>', methods=['GET'])
+def get_user(userID):
+    collection = db["users"]
+>>>>>>> 3ea7351 (correct callID handling and enable get_user endpoint)
 
-#     # Find the user document by userID (string)
-#     user = collection.find_one({"userID": userID})
+    # Find the user document by userID (string)
+    user = collection.find_one({"userID": userID})
 
-#     if not user:
-#         return jsonify({"error": f"No user found with userID {userID}"}), 404
+    if not user:
+        return jsonify({"error": f"No user found with userID {userID}"}), 404
 
+<<<<<<< HEAD
 #     print("User document:", user)  # Debug print
 #     return jsonify(user)
 >>>>>>> add0c6e (add Flask app with MongoDB integration and call endpoint)
+=======
+    print("User document:", user)  # Debug print
+    return jsonify(user)
+>>>>>>> 3ea7351 (correct callID handling and enable get_user endpoint)
 
 
 if __name__ == "__main__":
