@@ -121,6 +121,7 @@ const styles = StyleSheet.create({
 	scrollContainer: {
 		flex: 1,
 	},
+
 	homeHeader: {
 		fontSize: 24,
 		fontWeight: '600',
@@ -132,6 +133,7 @@ const styles = StyleSheet.create({
 		alignItems: "flex-end",
 		alignSelf: "flex-start",
 		height: 180,
+
 		width: "90%",
 		marginTop: 14,
 
