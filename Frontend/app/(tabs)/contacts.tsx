@@ -30,7 +30,7 @@ export default function Contacts() {
         <ContactItem
           icon={<Ionicons name="location-outline" size={28} color="#fff" />}
           label="Local Therapist"
-          onPress={() => r.push("/union")}
+          onPress={() => r.push("/local")}
         />
         <ContactItem
           icon={<Ionicons name="bookmark-outline" size={28} color="#fff" />}
