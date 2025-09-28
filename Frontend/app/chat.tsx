@@ -35,7 +35,7 @@ export default function Chat() {
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
         <Pressable onPress={handleBack} style={styles.backButton}>
@@ -97,7 +97,7 @@ export default function Chat() {
           </View>
         </View>
       </KeyboardAvoidingView>
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -111,7 +111,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 20,
-    paddingVertical: 16,
+    paddingTop: 50, // Add padding for status bar
+    paddingBottom: 16,
     backgroundColor: COLORS.steelBlue,
     borderBottomWidth: 1,
     borderBottomColor: COLORS.navy,

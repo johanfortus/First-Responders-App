@@ -1,6 +1,6 @@
-import { Text, View, StyleSheet, Image, ScrollView, Modal, TouchableOpacity, SafeAreaView } from "react-native";
+import { Text, View, StyleSheet, Image, ScrollView, Modal, TouchableOpacity, SafeAreaView, Animated } from "react-native";
 import { Link, useRouter } from "expo-router";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import makeCall from "../../utils/makeCall";
 import sendSMS from "../../utils/sendSMS";
 import ImportantNumbers from "../ImportantNumbers";
@@ -10,7 +10,81 @@ import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 export default function Index() {
 	const [numbersModalVisible, setNumbersModalVisible] = useState(false);
 	const [resourcesModalVisible, setResourcesModalVisible] = useState(false);
+	const [isFirstStartup, setIsFirstStartup] = useState(true);
 	const router = useRouter();
+	
+	// Animation values
+	const bannerOpacity = useRef(new Animated.Value(0)).current;
+	const bannerScale = useRef(new Animated.Value(0.8)).current;
+	const textOpacity = useRef(new Animated.Value(0)).current;
+	const textTranslateY = useRef(new Animated.Value(20)).current;
+	const ambientPulse = useRef(new Animated.Value(1)).current;
+	
+	useEffect(() => {
+		// Check if this is first startup (you could use AsyncStorage for persistence)
+		const hasSeenStartup = false; // Replace with actual check
+		setIsFirstStartup(!hasSeenStartup);
+		
+		if (!hasSeenStartup) {
+			// Startup animation sequence
+			Animated.sequence([
+				// Banner entrance
+				Animated.parallel([
+					Animated.timing(bannerOpacity, {
+						toValue: 1,
+						duration: 800,
+						useNativeDriver: true,
+					}),
+					Animated.spring(bannerScale, {
+						toValue: 1,
+						tension: 100,
+						friction: 8,
+						useNativeDriver: true,
+					}),
+				]),
+				// Text appearance
+				Animated.parallel([
+					Animated.timing(textOpacity, {
+						toValue: 1,
+						duration: 600,
+						useNativeDriver: true,
+					}),
+					Animated.timing(textTranslateY, {
+						toValue: 0,
+						duration: 600,
+						useNativeDriver: true,
+					}),
+				]),
+			]).start();
+			
+			// Set flag that user has seen startup
+			// AsyncStorage.setItem('hasSeenStartup', 'true');
+		} else {
+			// Regular entrance for returning users
+			bannerOpacity.setValue(1);
+			bannerScale.setValue(1);
+			textOpacity.setValue(1);
+			textTranslateY.setValue(0);
+		}
+		
+		// Ambient pulse animation
+		const createAmbientPulse = () => {
+			Animated.sequence([
+				Animated.timing(ambientPulse, {
+					toValue: 1.05,
+					duration: 3000,
+					useNativeDriver: true,
+				}),
+				Animated.timing(ambientPulse, {
+					toValue: 1,
+					duration: 3000,
+					useNativeDriver: true,
+				}),
+			]).start(() => createAmbientPulse());
+		};
+		
+		createAmbientPulse();
+	}, []);
 	return (
 		<SafeAreaView style={styles.container}>
 			<ScrollView 
@@ -19,13 +93,36 @@ export default function Index() {
 				showsVerticalScrollIndicator={false}
 			>
 				<Text style={styles.homeHeader}>Home</Text>
-				<View style={styles.homeBanner}>
-					<View style={styles.bannerTextContainer}>
-						<Text style={styles.bannerHeader}>Welcome Back Name</Text>
-						<Text style={styles.bannerSubHeader}>We're here for you</Text>
-					</View>
+				<Animated.View 
+					style={[
+						styles.homeBanner,
+						{
+							opacity: bannerOpacity,
+							transform: [
+								{ scale: bannerScale },
+								{ scale: ambientPulse }
+							]
+						}
+					]}
+				>
+					<Animated.View 
+						style={[
+							styles.bannerTextContainer,
+							{
+								opacity: textOpacity,
+								transform: [{ translateY: textTranslateY }]
+							}
+						]}
+					>
+						<Text style={styles.bannerHeader}>
+							{isFirstStartup ? "Welcome to ACE" : "Welcome Back Name"}
+						</Text>
+						<Text style={styles.bannerSubHeader}>
+							{isFirstStartup ? "Supporting first responders" : "We're here for you"}
+						</Text>
+					</Animated.View>
 					<Image source={require('../../assets/images/stroke.png')} style={styles.strokeGraphic}/>
-				</View>
+				</Animated.View>
 
 				{/* Test PostCallPause */}
 				<TouchableOpacity 
@@ -195,6 +292,14 @@ const styles = StyleSheet.create({
 		width: "100%",
 		marginTop: 14,		
 		backgroundColor: "#F66B0E",
+		shadowColor: "#F66B0E",
+		shadowOffset: {
+			width: 0,
+			height: 8,
+		},
+		shadowOpacity: 0.3,
+		shadowRadius: 16,
+		elevation: 12,
 	},
 	visitLink: {
 		marginTop: 10,
