@@ -13,16 +13,14 @@ export default function Onboard1() {
       </Pressable>
 
       <Image
-        source={{
-          uri: "https://images.unsplash.com/photo-1550645612-9e8e0b3c0f0f?w=1200",
-        }}
+        source={require("../assets/images/onboarding_1.jpg")}
         style={s.img}
         resizeMode="contain"
       />
 
       <View style={{ paddingHorizontal: 20 }}>
         <Text style={s.title}>
-          Connect with resources,{"\n"}mentors, or therapists,{"\n"}when and how you need{"\n"}it.
+          Connect with resources{"\n"}and Support Contacts
         </Text>
         <Text style={s.sub}>
           Schedule appointments, call, and{"\n"}chat with trained proffessionals
