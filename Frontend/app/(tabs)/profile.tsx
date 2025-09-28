@@ -202,7 +202,8 @@ const s = StyleSheet.create({
 
   saveBtn: {
     marginTop: 6,
-    backgroundColor: COLORS.navy2,
+    marginBottom: 6,
+    backgroundColor: "#F66B0E",
     height: 60,
     borderRadius: 26,
     alignItems: "center",
