@@ -14,13 +14,13 @@
 # print(response.json())
 
 
-import requests
+# import requests
 
-url = "http://127.0.0.1:5000/user/u001"
-data = {
-    "callID": 6
-}
+# url = "http://127.0.0.1:5000/user/user_001"
+# data = {
+#     "callID": 6
+# }
 
-response = requests.put(url, json=data)
-print(response.status_code)
-print(response.json())
+# response = requests.put(url, json=data)
+# print(response.status_code)
+# print(response.json())
