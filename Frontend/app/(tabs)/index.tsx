@@ -1,18 +1,23 @@
 import { Text, View, StyleSheet, Image, ScrollView, Modal, TouchableOpacity, SafeAreaView } from "react-native";
-import { Link } from "expo-router";
+import { Link, useRouter } from "expo-router";
 import { useState } from "react";
 import makeCall from "../../utils/makeCall";
 import sendSMS from "../../utils/sendSMS";
 import ImportantNumbers from "../ImportantNumbers";
 import ResourcesModal from "../ResourcesModal";
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 
 export default function Index() {
 	const [numbersModalVisible, setNumbersModalVisible] = useState(false);
 	const [resourcesModalVisible, setResourcesModalVisible] = useState(false);
-
+	const router = useRouter();
 	return (
 		<SafeAreaView style={styles.container}>
-			<ScrollView style={styles.scrollContainer} showsVerticalScrollIndicator={false}>
+			<ScrollView 
+				style={styles.scrollContainer} 
+				contentContainerStyle={styles.scrollContentContainer}
+				showsVerticalScrollIndicator={false}
+			>
 				<Text style={styles.homeHeader}>Home</Text>
 				<View style={styles.homeBanner}>
 					<View style={styles.bannerTextContainer}>
@@ -57,9 +62,56 @@ export default function Index() {
 
 				<View style={styles.sectionContainer}>
 					<View style={styles.sectionHeader}>
-						<Text style={styles.sectionTitle}>Resources</Text>
+						<Text style={styles.sectionTitle}>Quick Actions</Text>
 						<TouchableOpacity onPress={() => setResourcesModalVisible(true)}>
 							<Text style={styles.seeAllLink}>See All</Text>
+						</TouchableOpacity>
+					</View>
+					
+					<View style={styles.resourceCardsContainer}>
+						<TouchableOpacity 
+							style={styles.resourceCard}
+							onPress={() => router.push('/resource_1')}
+						>
+							<View style={styles.resourceCardContent}>
+								<View style={styles.resourceTextContainer}>
+									<Text style={styles.resourceCardTitle}>Taking Care of You</Text>
+									<Text style={styles.resourceCardDescription}>Prioritize these strategies for self-care</Text>
+								</View>
+								<View style={styles.resourceIcon}>
+									<Ionicons name="heart-outline" size={20} color="white" />
+								</View>
+							</View>
+						</TouchableOpacity>
+						
+						<TouchableOpacity 
+							style={styles.resourceCard}
+							onPress={() => router.push('/resource_2')}
+						>
+							<View style={styles.resourceCardContent}>
+								<View style={styles.resourceTextContainer}>
+									<Text style={styles.resourceCardTitle}>The Power of Family & Connection</Text>
+									<Text style={styles.resourceCardDescription}>Importance of social connection in mental health</Text>
+								</View>
+								<View style={styles.resourceIcon}>
+									<Ionicons name="people-outline" size={20} color="white" />
+								</View>
+							</View>
+						</TouchableOpacity>
+						
+						<TouchableOpacity 
+							style={styles.resourceCard}
+							onPress={() => router.push('/resource_3')}
+						>
+							<View style={styles.resourceCardContent}>
+								<View style={styles.resourceTextContainer}>
+									<Text style={styles.resourceCardTitle}>Approaching a Member in Need</Text>
+									<Text style={styles.resourceCardDescription}>Demonstrates a peer support approach</Text>
+								</View>
+								<View style={styles.resourceIcon}>
+									<Ionicons name="handshake-outline" size={20} color="white" />
+								</View>
+							</View>
 						</TouchableOpacity>
 					</View>
 				</View>
@@ -116,12 +168,14 @@ export default function Index() {
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
-		backgroundColor: '#F5F5F5',
+		backgroundColor: '#EFEFEF',
 	},
 	scrollContainer: {
 		flex: 1,
 	},
-
+	scrollContentContainer: {
+		paddingBottom: 80,
+	},
 	homeHeader: {
 		fontSize: 24,
 		fontWeight: '600',
@@ -133,15 +187,8 @@ const styles = StyleSheet.create({
 		alignItems: "flex-end",
 		alignSelf: "flex-start",
 		height: 180,
-
-		width: "90%",
-		marginTop: 14,
-
-		borderTopLeftRadius: 0,
-		borderTopRightRadius: 15,
-		borderBottomLeftRadius: 0,
-		borderBottomRightRadius: 15,
-		
+		width: "100%",
+		marginTop: 14,		
 		backgroundColor: "#F66B0E",
 	},
 	visitLink: {
@@ -158,7 +205,7 @@ const styles = StyleSheet.create({
 	},
 	bannerHeader: {
 		color: 'white',
-		fontSize: 16,
+		fontSize: 20,
 		fontWeight: '600',
 	},
 	bannerSubHeader: {
@@ -170,7 +217,7 @@ const styles = StyleSheet.create({
 		bottom: 0,
 		left: 0,
 	},
-	sectionContainer: {
+	importantNumbersSection: {
 		marginTop: 24,
 	},
 	sectionHeader: {
@@ -258,5 +305,53 @@ const styles = StyleSheet.create({
 		fontSize: 20,
 		color: '#666',
 		fontWeight: '300',
+	},
+	sectionContainer: {
+		marginTop: 24,
+	},
+	resourceCardsContainer: {
+		marginLeft: 15,
+		marginRight: 15,
+	},
+	resourceCard: {
+		backgroundColor: 'white',
+		borderRadius: 12,
+		marginBottom: 12,
+		shadowColor: '#000',
+		shadowOffset: {
+			width: 0,
+			height: 2,
+		},
+		shadowOpacity: 0.1,
+		shadowRadius: 4,
+		elevation: 3,
+	},
+	resourceCardContent: {
+		flexDirection: 'row',
+		alignItems: 'center',
+		padding: 16,
+	},
+	resourceTextContainer: {
+		flex: 1,
+		marginRight: 12,
+	},
+	resourceCardTitle: {
+		fontSize: 16,
+		fontWeight: '600',
+		color: '#333',
+		marginBottom: 4,
+	},
+	resourceCardDescription: {
+		fontSize: 14,
+		color: '#666',
+		lineHeight: 20,
+	},
+	resourceIcon: {
+		width: 40,
+		height: 40,
+		borderRadius: 8,
+		backgroundColor: '#F66B0E',
+		justifyContent: 'center',
+		alignItems: 'center',
 	}
 })

@@ -13,9 +13,7 @@ export default function Onboard2() {
       </Pressable>
 
       <Image
-        source={{
-          uri: "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=1200",
-        }}
+        source={require("../assets/images/onboarding_2.jpg")}
         style={s.img}
         resizeMode="contain"
       />
