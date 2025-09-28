@@ -27,7 +27,7 @@ export default function Index() {
 		if (!pollingActive) return; // Stop polling if inactive
 		
 		try {
-			const response = await fetch(`/users/${userId}/chat-triggers`, {
+			const response = await fetch(`http://localhost:5001/users/${userId}/calls`, {
 				method: 'GET',
 				headers: {
 					'Content-Type': 'application/json',
@@ -36,44 +36,34 @@ export default function Index() {
 			
 			if (response.ok) {
 				const data = await response.json();
-				console.log('🔍 Polling chat triggers...', data);
+				console.log('🔍 Polling user calls...', data);
 				
-				// Check if there are new triggers (DEMO: Always trigger for any severity)
-				if (data.triggers && data.triggers.length > 0) {
-					const newTriggers = data.triggers.filter(trigger => 
-						trigger.isNew && 
-						!trigger.acknowledged
-					);
+				// Check if there are new calls (DEMO: Always trigger for demo)
+				if (data.calls && data.calls.length > 0) {
+					// For demo purposes, check if we have any calls and trigger
+					const latestCall = data.calls.sort((a, b) => 
+						new Date(b.timestamp || b.createdAt).getTime() - new Date(a.timestamp || a.createdAt).getTime()
+					)[0];
 					
-					if (newTriggers.length > 0) {
-						// Sort by timestamp to get the most recent trigger
-						const latestTrigger = newTriggers.sort((a, b) => 
-							new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-						)[0];
-						
-						console.log('DEMO MODE: TRIGGER DETECTED!', latestTrigger);
-						
-						// Stop polling immediately
-						setPollingActive(false);
-						
-						// Navigate to PostCallPause first, then to chat
-						router.push({
-							pathname: "/(modals)/post-call-pause",
-							params: {
-								incidentId: latestTrigger.incidentId || latestTrigger.callId,
-								severity: latestTrigger.severity.toString(),
-								source: 'trigger',
-								triggerId: latestTrigger.id
-							}
-						});
-						
-						// Mark trigger as acknowledged to prevent duplicate navigation
-						// You might want to call an API endpoint here to mark it as seen
-					}
+					console.log('DEMO MODE: NEW CALL DETECTED!', latestCall);
+					
+					// Stop polling immediately
+					setPollingActive(false);
+					
+					// Navigate to PostCallPause first, then to chat
+					router.push({
+						pathname: "/(modals)/post-call-pause",
+						params: {
+							incidentId: latestCall._id || latestCall.callId || 'demo_call_123',
+							severity: latestCall.severity ? latestCall.severity.toString() : '0.85',
+							source: 'call_trigger',
+							triggerId: latestCall._id || 'demo_trigger_456'
+						}
+					});
 				}
 			}
 		} catch (error) {
-			console.error('Error polling chat triggers:', error);
+			console.error('Error polling user calls:', error);
 			
 			// DEMO MODE: Simulate a trigger after 10 seconds if no real endpoint
 			console.log('🔍 No real endpoint - simulating demo trigger after 10 seconds...');
@@ -191,21 +181,23 @@ export default function Index() {
 				console.log('🚨 DEMO: Auto-triggering PostCallPause after 10 seconds');
 				setPollingActive(false);
 				
-				// Try different navigation approaches
+				// Navigate to PostCallPause
 				console.log('Attempting navigation to PostCallPause...');
 				
-				router.push({
-					pathname: "/(modals)/post-call-pause",
-					params: {
-						incidentId: 'demo_incident_123',
-						severity: '0.85',
-						source: 'demo_auto_trigger'
-					}
-				}).catch((error) => {
+				try {
+					router.push({
+						pathname: "/(modals)/post-call-pause",
+						params: {
+							incidentId: 'demo_incident_123',
+							severity: '0.85',
+							source: 'demo_auto_trigger'
+						}
+					});
+				} catch (error) {
 					console.error('Navigation error:', error);
 					// Fallback: try direct route
 					router.push('/post-call-pause?incidentId=demo_incident_123&severity=0.85&source=demo_auto_trigger');
-				});
+				}
 			}
 		}, 10000); // 10 seconds
 		
@@ -256,7 +248,7 @@ export default function Index() {
 						]}
 					>
 						<Text style={styles.bannerHeader}>
-							{isFirstStartup ? "Welcome to ACE" : "Welcome Back Name"}
+							{isFirstStartup ? "Welcome to ARC" : "Welcome Back Name"}
 						</Text>
 						<Text style={styles.bannerSubHeader}>
 							{isFirstStartup ? "Supporting first responders" : "We're here for you"}

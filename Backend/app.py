@@ -249,6 +249,69 @@ def send_notification_endpoint():
     }), 200
 
 
+@app.route('/chat-with-gemini', methods=['POST'])
+def chat_with_gemini():
+    """Chat with Gemini AI for mental health support"""
+    try:
+        data = request.json
+        user_message = data.get('message', '')
+        context = data.get('context', '')
+        incident_id = data.get('incidentId', '')
+        
+        # For demo purposes, use a simple response system
+        # In production, this would integrate with actual Gemini API
+        lower_message = user_message.lower()
+        
+        # Crisis detection keywords
+        crisis_keywords = [
+            'not good', 'terrible', 'awful', 'horrible', 'can\'t cope', 
+            'overwhelmed', 'depressed', 'suicidal', 'want to die', 
+            'end it all', 'kill myself', 'harm myself'
+        ]
+        
+        if any(keyword in lower_message for keyword in crisis_keywords):
+            return jsonify({
+                "status": "success",
+                "response": "CRISIS_DETECTED",
+                "severity": "high"
+            }), 200
+        
+        # Mental health concerns
+        concern_keywords = [
+            'struggling', 'hard time', 'difficult', 'stress', 'anxiety', 
+            'worried', 'scared', 'afraid', 'trouble', 'problem'
+        ]
+        
+        if any(keyword in lower_message for keyword in concern_keywords):
+            response = "I can hear that you're going through a tough time right now. It's completely understandable to feel this way after a difficult call. You're not alone in this. Would you like me to connect you with someone who can provide additional support?"
+        elif any(word in lower_message for word in ['okay', 'fine', 'alright', 'good']):
+            response = "I'm glad to hear you're doing okay. It's important to check in with yourself regularly after these kinds of calls. Is there anything specific about the call that's on your mind?"
+        else:
+            response = "Thank you for sharing that with me. It takes courage to talk about these experiences. How are you feeling physically right now? Are you getting enough rest?"
+        
+        # Store the conversation in database
+        conversation_collection = db["chat_conversations"]
+        conversation_collection.insert_one({
+            "incident_id": incident_id,
+            "user_message": user_message,
+            "ai_response": response,
+            "timestamp": datetime.utcnow(),
+            "context": context
+        })
+        
+        return jsonify({
+            "status": "success",
+            "response": response,
+            "severity": "normal"
+        }), 200
+        
+    except Exception as e:
+        return jsonify({
+            "status": "error",
+            "message": str(e)
+        }), 500
+
+
 if __name__ == "__main__":
     debug_mode = os.getenv('FLASK_DEBUG', 'False').lower() == 'true'
     app.run(debug=debug_mode, host='0.0.0.0', port=5000)

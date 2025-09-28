@@ -26,15 +26,27 @@ export default function PostCallPause() {
   });
 
   const navigateToChat = () => {
-    router.push({
-      pathname: '/chat',
-      params: {
-        incidentId,
-        severity,
-        source,
-        triggerId,
-      },
+    console.log('navigateToChat called with params:', {
+      incidentId,
+      severity,
+      source,
+      triggerId,
     });
+    
+    try {
+      router.push({
+        pathname: '/chat',
+        params: {
+          incidentId,
+          severity,
+          source,
+          triggerId,
+        },
+      });
+      console.log('Navigation to chat initiated successfully');
+    } catch (error) {
+      console.error('Navigation error:', error);
+    }
   };
 
   const handleSkip = () => {
@@ -52,18 +64,25 @@ export default function PostCallPause() {
 
   // Auto-navigation effect
   useEffect(() => {
+    console.log('PostCallPause useEffect triggered with:', { source, triggerId });
+    
     // If this came from a trigger, acknowledge it and auto-navigate
     if (source === 'trigger' && triggerId) {
       console.log('Acknowledging trigger:', triggerId);
       // You could call an API here to acknowledge the trigger
     }
 
-    // Auto-advance after 2.8 seconds
+    // Auto-advance after 2 seconds (reduced for testing)
+    console.log('Setting auto-navigation timer for 2 seconds...');
     const timer = setTimeout(() => {
+      console.log('Auto-navigation timer triggered - navigating to chat');
       navigateToChat();
-    }, 2800);
+    }, 2000);
 
-    return () => clearTimeout(timer);
+    return () => {
+      console.log('Cleaning up timer');
+      clearTimeout(timer);
+    };
   }, [source, triggerId]);
 
   return (
