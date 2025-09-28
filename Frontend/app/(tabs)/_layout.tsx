@@ -10,7 +10,6 @@ export default function _layout() {
         tabBarStyle: styles.tabBar,
     }}>
         <Tabs.Screen name='index'/>
-        <Tabs.Screen name='resources'/>
 
     </Tabs>
   )
