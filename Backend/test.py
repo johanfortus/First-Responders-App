@@ -15,6 +15,7 @@
 
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 # import requests
 
 # url = "http://127.0.0.1:5000/user/user_001"
@@ -27,13 +28,22 @@
 # print(response.json())
 =======
 import requests
+=======
+# import requests
+>>>>>>> 39e74d8 (adding more test for endpoints)
 
-url = "http://127.0.0.1:5000/user/u001"
-data = {
-    "callID": 6
-}
+# url = "http://127.0.0.1:5000/user/user_001"
+# data = {
+#     "callID": 6
+# }
 
+<<<<<<< HEAD
 response = requests.put(url, json=data)
 print(response.status_code)
 print(response.json())
 >>>>>>> 2e7c151 (upload testing to test endpoint)
+=======
+# response = requests.put(url, json=data)
+# print(response.status_code)
+# print(response.json())
+>>>>>>> 39e74d8 (adding more test for endpoints)
