@@ -58,7 +58,7 @@ export default function Index() {
 
 				<View style={styles.sectionContainer}>
 					<View style={styles.sectionHeader}>
-						<Text style={styles.sectionTitle}>Resources</Text>
+						<Text style={styles.sectionTitle}>Quick Actions</Text>
 						<TouchableOpacity onPress={() => setResourcesModalVisible(true)}>
 							<Text style={styles.seeAllLink}>See All</Text>
 						</TouchableOpacity>
