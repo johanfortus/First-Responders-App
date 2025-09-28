@@ -44,9 +44,7 @@ def home():
 @app.route('/call', methods=['POST'])
 def add_call():
     data = request.json
-
-    callID = len(collection = db["call_records"].find()) + 1
-
+    
     # Validate required fields
     required_fields = ["userID", "transcripts", "severityScore", "date"]
     for field in required_fields:
@@ -61,7 +59,7 @@ def add_call():
 
     # Prepare new call document
     new_call = {
-        "callID": callID,
+        "callID": data["callID"],
         "userID": data["userID"],
         "transcripts": data["transcripts"],
         "severityScore": data["severityScore"],
@@ -77,18 +75,18 @@ def add_call():
     }), 201
 
 
-# @app.route('/users/<userID>', methods=['GET'])
-# def get_user(userID):
-#     collection = db["users"]
+@app.route('/users/<userID>', methods=['GET'])
+def get_user(userID):
+    collection = db["users"]
 
-#     # Find the user document by userID (string)
-#     user = collection.find_one({"userID": userID})
+    # Find the user document by userID (string)
+    user = collection.find_one({"userID": userID})
 
-#     if not user:
-#         return jsonify({"error": f"No user found with userID {userID}"}), 404
+    if not user:
+        return jsonify({"error": f"No user found with userID {userID}"}), 404
 
-#     print("User document:", user)  # Debug print
-#     return jsonify(user)
+    print("User document:", user)  # Debug print
+    return jsonify(user)
 
 
 if __name__ == "__main__":
