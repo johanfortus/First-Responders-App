@@ -39,7 +39,7 @@ export default function Profile() {
     "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=300&auto=format&fit=crop";
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.bg }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.navy }} edges={['bottom']}>
       <ScrollView contentContainerStyle={s.container} keyboardShouldPersistTaps="handled">
         <View style={s.header}>
           <Pressable onPress={() => r.back()} hitSlop={12} style={s.backBtn}>
@@ -123,7 +123,10 @@ function Pill({
 }
 
 const s = StyleSheet.create({
-  container: { paddingBottom: 28 },
+  container: { 
+    paddingBottom: 28,
+    backgroundColor: COLORS.bg,
+  },
   header: {
     backgroundColor: COLORS.navy,
     paddingTop: 12,
