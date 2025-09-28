@@ -11,6 +11,8 @@ export default function Index() {
 	const [numbersModalVisible, setNumbersModalVisible] = useState(false);
 	const [resourcesModalVisible, setResourcesModalVisible] = useState(false);
 	const [isFirstStartup, setIsFirstStartup] = useState(true);
+	const [userId, setUserId] = useState('demo_user_123'); // Replace with actual user ID
+	const [pollingActive, setPollingActive] = useState(true);
 	const router = useRouter();
 	
 	// Animation values
@@ -19,6 +21,101 @@ export default function Index() {
 	const textOpacity = useRef(new Animated.Value(0)).current;
 	const textTranslateY = useRef(new Animated.Value(20)).current;
 	const ambientPulse = useRef(new Animated.Value(1)).current;
+	
+	// Polling function for chat triggers
+	const pollChatTriggers = async () => {
+		if (!pollingActive) return; // Stop polling if inactive
+		
+		try {
+			const response = await fetch(`/users/${userId}/chat-triggers`, {
+				method: 'GET',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+			});
+			
+			if (response.ok) {
+				const data = await response.json();
+				console.log('🔍 Polling chat triggers...', data);
+				
+				// Check if there are new triggers (DEMO: Always trigger for any severity)
+				if (data.triggers && data.triggers.length > 0) {
+					const newTriggers = data.triggers.filter(trigger => 
+						trigger.isNew && 
+						!trigger.acknowledged
+					);
+					
+					if (newTriggers.length > 0) {
+						// Sort by timestamp to get the most recent trigger
+						const latestTrigger = newTriggers.sort((a, b) => 
+							new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+						)[0];
+						
+						console.log('DEMO MODE: TRIGGER DETECTED!', latestTrigger);
+						
+						// Stop polling immediately
+						setPollingActive(false);
+						
+						// Navigate to PostCallPause first, then to chat
+						router.push({
+							pathname: "/(modals)/post-call-pause",
+							params: {
+								incidentId: latestTrigger.incidentId || latestTrigger.callId,
+								severity: latestTrigger.severity.toString(),
+								source: 'trigger',
+								triggerId: latestTrigger.id
+							}
+						});
+						
+						// Mark trigger as acknowledged to prevent duplicate navigation
+						// You might want to call an API endpoint here to mark it as seen
+					}
+				}
+			}
+		} catch (error) {
+			console.error('Error polling chat triggers:', error);
+			
+			// DEMO MODE: Simulate a trigger after 10 seconds if no real endpoint
+			console.log('🔍 No real endpoint - simulating demo trigger after 10 seconds...');
+			
+			// Create a demo trigger after 10 seconds
+			setTimeout(() => {
+				if (pollingActive) {
+					console.log('🚨 DEMO MODE: Simulated trigger detected!');
+					
+					// Stop polling immediately
+					setPollingActive(false);
+					
+					// Navigate to PostCallPause with demo data
+					router.push({
+						pathname: "/(modals)/post-call-pause",
+						params: {
+							incidentId: 'demo_incident_123',
+							severity: '0.85',
+							source: 'demo_trigger',
+							triggerId: 'demo_trigger_456'
+						}
+					});
+				}
+			}, 10000); // 10 seconds delay
+		}
+	};
+	
+	// Function to acknowledge a trigger (mark as seen)
+	const acknowledgeTrigger = async (triggerId: string) => {
+		try {
+			await fetch(`/users/${userId}/chat-triggers/${triggerId}/acknowledge`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					// Add authentication headers if needed
+					// 'Authorization': `Bearer ${authToken}`,
+				},
+			});
+		} catch (error) {
+			console.error('Error acknowledging trigger:', error);
+		}
+	};
 	
 	useEffect(() => {
 		// Check if this is first startup (you could use AsyncStorage for persistence)
@@ -85,6 +182,42 @@ export default function Index() {
 		
 		createAmbientPulse();
 	}, []);
+	
+	// Demo trigger effect - simpler approach
+	useEffect(() => {
+		// DEMO: Trigger after 10 seconds automatically
+		const demoTrigger = setTimeout(() => {
+			if (pollingActive) {
+				console.log('🚨 DEMO: Auto-triggering PostCallPause after 10 seconds');
+				setPollingActive(false);
+				
+				// Try different navigation approaches
+				console.log('Attempting navigation to PostCallPause...');
+				
+				router.push({
+					pathname: "/(modals)/post-call-pause",
+					params: {
+						incidentId: 'demo_incident_123',
+						severity: '0.85',
+						source: 'demo_auto_trigger'
+					}
+				}).catch((error) => {
+					console.error('Navigation error:', error);
+					// Fallback: try direct route
+					router.push('/post-call-pause?incidentId=demo_incident_123&severity=0.85&source=demo_auto_trigger');
+				});
+			}
+		}, 10000); // 10 seconds
+		
+		// Also try the real polling for backup
+		pollChatTriggers();
+		const pollingInterval = setInterval(pollChatTriggers, 10000);
+		
+		return () => {
+			clearTimeout(demoTrigger);
+			clearInterval(pollingInterval);
+		};
+	}, [userId, pollingActive]);
 	return (
 		<SafeAreaView style={styles.container}>
 			<ScrollView 
@@ -92,7 +225,15 @@ export default function Index() {
 				contentContainerStyle={styles.scrollContentContainer}
 				showsVerticalScrollIndicator={false}
 			>
-				<Text style={styles.homeHeader}>Home</Text>
+				<View style={styles.headerContainer}>
+					<Text style={styles.homeHeader}>Home</Text>
+					{pollingActive && (
+						<View style={styles.pollingIndicator}>
+							<View style={styles.pollingDot} />
+							<Text style={styles.pollingText}>Monitoring</Text>
+						</View>
+					)}
+				</View>
 				<Animated.View 
 					style={[
 						styles.homeBanner,
@@ -127,7 +268,10 @@ export default function Index() {
 				{/* Test PostCallPause */}
 				<TouchableOpacity 
 					style={styles.testButton}
-					onPress={() => router.push("/(modals)/post-call-pause?incidentId=inc_123&severity=0.82")}
+					onPress={() => {
+						console.log('🧪 Test button pressed - navigating to PostCallPause');
+						router.push("/(modals)/post-call-pause?incidentId=inc_123&severity=0.82");
+					}}
 				>
 					<Text style={styles.testButtonText}>Test Post-Call Pause</Text>
 				</TouchableOpacity>
@@ -211,7 +355,7 @@ export default function Index() {
 									<Text style={styles.resourceCardDescription}>Demonstrates a peer support approach</Text>
 								</View>
 								<View style={styles.resourceIcon}>
-									<Ionicons name="handshake-outline" size={20} color="white" />
+									<Ionicons name="people-outline" size={20} color="white" />
 								</View>
 							</View>
 						</TouchableOpacity>
@@ -278,11 +422,37 @@ const styles = StyleSheet.create({
 	scrollContentContainer: {
 		paddingBottom: 80,
 	},
+	headerContainer: {
+		flexDirection: 'row',
+		justifyContent: 'space-between',
+		alignItems: 'center',
+		marginTop: 28,
+		marginLeft: 20,
+		marginRight: 20,
+	},
 	homeHeader: {
 		fontSize: 24,
 		fontWeight: '600',
-		marginTop: 28,
-		marginLeft: 20,
+	},
+	pollingIndicator: {
+		flexDirection: 'row',
+		alignItems: 'center',
+		backgroundColor: '#F66B0E',
+		paddingHorizontal: 12,
+		paddingVertical: 6,
+		borderRadius: 16,
+	},
+	pollingDot: {
+		width: 8,
+		height: 8,
+		borderRadius: 4,
+		backgroundColor: '#00FF00',
+		marginRight: 6,
+	},
+	pollingText: {
+		color: 'white',
+		fontSize: 12,
+		fontWeight: '600',
 	},
 	homeBanner: {
 		justifyContent: "flex-start",

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   View,
   Text,
@@ -15,6 +15,15 @@ export default function PostCallPause() {
 
   const incidentId = params.incidentId as string || 'demo';
   const severity = params.severity as string || '0.82';
+  const source = params.source as string || 'manual';
+  const triggerId = params.triggerId as string;
+
+  console.log('🎬 PostCallPause component loaded with params:', {
+    incidentId,
+    severity,
+    source,
+    triggerId
+  });
 
   const navigateToChat = () => {
     router.push({
@@ -22,17 +31,40 @@ export default function PostCallPause() {
       params: {
         incidentId,
         severity,
+        source,
+        triggerId,
       },
     });
   };
 
   const handleSkip = () => {
+    // If this came from a trigger, acknowledge it when user skips
+    if (source === 'trigger' && triggerId) {
+      // You could call an API here to acknowledge the trigger
+      console.log('Acknowledging trigger:', triggerId);
+    }
     navigateToChat();
   };
 
   const handlePrivacyLearn = () => {
     console.log('Privacy info clicked');
   };
+
+  // Auto-navigation effect
+  useEffect(() => {
+    // If this came from a trigger, acknowledge it and auto-navigate
+    if (source === 'trigger' && triggerId) {
+      console.log('Acknowledging trigger:', triggerId);
+      // You could call an API here to acknowledge the trigger
+    }
+
+    // Auto-advance after 2.8 seconds
+    const timer = setTimeout(() => {
+      navigateToChat();
+    }, 2800);
+
+    return () => clearTimeout(timer);
+  }, [source, triggerId]);
 
   return (
     <View style={styles.container}>
