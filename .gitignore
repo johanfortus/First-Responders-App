@@ -34,6 +34,12 @@ yarn-error.*
 
 # local env files
 .env*.local
+.env
+
+# Agents directory sensitive files
+Agents/.env
+Agents/.claude/
+.venv/
 
 # typescript
 *.tsbuildinfo
