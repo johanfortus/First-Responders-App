@@ -5,6 +5,7 @@ import makeCall from "../../utils/makeCall";
 import sendSMS from "../../utils/sendSMS";
 import ImportantNumbers from "../ImportantNumbers";
 import ResourcesModal from "../ResourcesModal";
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 
 export default function Index() {
 	const [numbersModalVisible, setNumbersModalVisible] = useState(false);
@@ -62,6 +63,44 @@ export default function Index() {
 							<Text style={styles.seeAllLink}>See All</Text>
 						</TouchableOpacity>
 					</View>
+					
+					<View style={styles.resourceCardsContainer}>
+						<TouchableOpacity style={styles.resourceCard}>
+							<View style={styles.resourceCardContent}>
+								<View style={styles.resourceTextContainer}>
+									<Text style={styles.resourceCardTitle}>Taking Care of You</Text>
+									<Text style={styles.resourceCardDescription}>Prioritize these strategies for self-care</Text>
+								</View>
+								<View style={styles.resourceIcon}>
+									<Ionicons name="heart-outline" size={20} color="white" />
+								</View>
+							</View>
+						</TouchableOpacity>
+						
+						<TouchableOpacity style={styles.resourceCard}>
+							<View style={styles.resourceCardContent}>
+								<View style={styles.resourceTextContainer}>
+									<Text style={styles.resourceCardTitle}>The Power of Family & Connection</Text>
+									<Text style={styles.resourceCardDescription}>Importance of social connection in mental health</Text>
+								</View>
+								<View style={styles.resourceIcon}>
+									<Ionicons name="people-outline" size={20} color="white" />
+								</View>
+							</View>
+						</TouchableOpacity>
+						
+						<TouchableOpacity style={styles.resourceCard}>
+							<View style={styles.resourceCardContent}>
+								<View style={styles.resourceTextContainer}>
+									<Text style={styles.resourceCardTitle}>Approaching a Member in Need</Text>
+									<Text style={styles.resourceCardDescription}>Demonstrates a peer support approach</Text>
+								</View>
+								<View style={styles.resourceIcon}>
+									<Ionicons name="handshake-outline" size={20} color="white" />
+								</View>
+							</View>
+						</TouchableOpacity>
+					</View>
 				</View>
 
 				<Modal
@@ -73,7 +112,7 @@ export default function Index() {
 					<SafeAreaView style={styles.modalContainer}>
 						<View style={styles.modalContent}>
 							<View style={styles.modalHeader}>
-								<Text style={styles.modalTitle}>Important Numbers</Text>
+								<Text style={styles.modalTitle}>Resources</Text>
 								<TouchableOpacity 
 									onPress={() => setNumbersModalVisible(false)}
 									style={styles.closeButton}
@@ -168,7 +207,7 @@ const styles = StyleSheet.create({
 		bottom: 0,
 		left: 0,
 	},
-	sectionContainer: {
+	importantNumbersSection: {
 		marginTop: 24,
 	},
 	sectionHeader: {
@@ -256,5 +295,53 @@ const styles = StyleSheet.create({
 		fontSize: 20,
 		color: '#666',
 		fontWeight: '300',
+	},
+	sectionContainer: {
+		marginTop: 24,
+	},
+	resourceCardsContainer: {
+		marginLeft: 15,
+		marginRight: 15,
+	},
+	resourceCard: {
+		backgroundColor: 'white',
+		borderRadius: 12,
+		marginBottom: 12,
+		shadowColor: '#000',
+		shadowOffset: {
+			width: 0,
+			height: 2,
+		},
+		shadowOpacity: 0.1,
+		shadowRadius: 4,
+		elevation: 3,
+	},
+	resourceCardContent: {
+		flexDirection: 'row',
+		alignItems: 'center',
+		padding: 16,
+	},
+	resourceTextContainer: {
+		flex: 1,
+		marginRight: 12,
+	},
+	resourceCardTitle: {
+		fontSize: 16,
+		fontWeight: '600',
+		color: '#333',
+		marginBottom: 4,
+	},
+	resourceCardDescription: {
+		fontSize: 14,
+		color: '#666',
+		lineHeight: 20,
+	},
+	resourceIcon: {
+		width: 40,
+		height: 40,
+		borderRadius: 8,
+		backgroundColor: '#F66B0E',
+		justifyContent: 'center',
+		alignItems: 'center',
 	}
 })
