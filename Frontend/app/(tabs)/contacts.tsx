@@ -1,4 +1,3 @@
-// app/(tabs)/contacts.tsx
 import { View, Text, StyleSheet, Pressable, SafeAreaView, ScrollView } from "react-native";
 import { useRouter } from "expo-router";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
@@ -36,7 +35,7 @@ export default function Contacts() {
         <ContactItem
           icon={<Ionicons name="bookmark-outline" size={28} color="#fff" />}
           label="Preferred Therapist"
-          onPress={() => r.push("/union")}
+          onPress={() => r.push("/preferred")}
         />
       </ScrollView>
     </SafeAreaView>
@@ -77,7 +76,6 @@ const s = StyleSheet.create({
     letterSpacing: -0.02,
     marginTop: 80,
   },
-  
   container: {
     paddingHorizontal: 20,
     paddingTop: 50,
@@ -94,8 +92,8 @@ const s = StyleSheet.create({
     marginBottom: 12,
   },
   iconTile: {
-    width: 80,
-    height: 80,
+    width: 60,
+    height: 60,
     borderRadius: 16,
     backgroundColor: COLORS.primary,
     alignItems: "center",
