@@ -19,14 +19,14 @@ export default function Resource3() {
     "https://www.iaffrecoverycenter.com/continuing-education/approaching-a-member-in-need";
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.bg }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.bg }} edges={['bottom']}>
       <View style={s.top}>
         <Pressable onPress={() => r.back()} style={s.iconBtn}>
           <Ionicons name="chevron-back" size={24} color={COLORS.title} />
         </Pressable>
       </View>
 
-      <View style={s.content}>
+      <ScrollView contentContainerStyle={s.content} showsVerticalScrollIndicator={false}>
         <Text style={s.section}>Video Resource</Text>
         <Text style={s.h1}>Approaching a Member in Need</Text>
 
@@ -50,7 +50,7 @@ export default function Resource3() {
           <Ionicons name="play-circle-outline" size={22} color="#fff" />
           <Text style={s.btnTxt}>Watch Video</Text>
         </Pressable>
-      </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }
