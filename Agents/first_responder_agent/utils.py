@@ -4,6 +4,12 @@ import requests
 import logging
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional
+from dotenv import load_dotenv
+
+# Load environment variables from the agent's .env file
+agent_dir = os.path.dirname(__file__)
+env_path = os.path.join(agent_dir, '.env')
+load_dotenv(env_path)
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -19,31 +25,38 @@ def load_config() -> Dict:
         logger.error("config.json not found")
         return {}
 
-def send_to_backend(endpoint: str, data: Dict, backend_url: str = None) -> Dict:
+def send_to_backend(endpoint: str, data: Dict, backend_url: str = None, method: str = "POST") -> Dict:
     """Send data to backend API endpoint"""
     try:
         config = load_config()
         base_url = backend_url or config.get('backend_url', 'http://localhost:8000')
-        
+
         # Ensure endpoint starts with /
         if not endpoint.startswith('/'):
             endpoint = '/' + endpoint
-            
+
         url = f"{base_url}{endpoint}"
-        
+
         headers = {
             'Content-Type': 'application/json',
             'Accept': 'application/json'
         }
-        
+
         # Add authentication if configured
         auth_token = config.get('auth_token') or os.getenv('API_AUTH_TOKEN')
         if auth_token:
             headers['Authorization'] = f"Bearer {auth_token}"
-        
-        response = requests.post(url, json=data, headers=headers, timeout=30)
+
+        # Use the appropriate HTTP method
+        if method.upper() == "PUT":
+            response = requests.put(url, json=data, headers=headers, timeout=30)
+        elif method.upper() == "GET":
+            response = requests.get(url, headers=headers, timeout=30)
+        else:  # Default to POST
+            response = requests.post(url, json=data, headers=headers, timeout=30)
+
         response.raise_for_status()
-        
+
         return response.json()
         
     except requests.exceptions.RequestException as e:
@@ -72,13 +85,14 @@ def calculate_severity_score(transcript: str, user_id: str, config: Dict) -> int
         # Initialize Vertex AI
         project_id = os.getenv('GOOGLE_CLOUD_PROJECT')
         location = os.getenv('GOOGLE_CLOUD_LOCATION', 'us-central1')
-        
+
+
         if not project_id:
             logger.warning("Google Cloud project not configured, using fallback")
             raise Exception("No Google Cloud project configured")
         
         vertexai.init(project=project_id, location=location)
-        model = GenerativeModel('gemini-2.5-flash')
+        model = GenerativeModel('gemini-2.0-flash-exp')
         
         # Create prompt for AI severity assessment
         prompt = f"""
@@ -152,7 +166,7 @@ def calculate_wellness_scores(user_id: str, new_call_severity: int = None) -> Di
     """
     try:
         # Fetch user's call history from backend
-        calls_data = send_to_backend(f'/users/{user_id}/calls', {})
+        calls_data = send_to_backend(f'/users/{user_id}/calls', {}, method="GET")
         calls = calls_data.get('calls', [])
         
         today = datetime.now().date()
