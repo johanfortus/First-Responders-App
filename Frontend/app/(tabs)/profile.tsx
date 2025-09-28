@@ -28,7 +28,6 @@ export default function Profile() {
   const r = useRouter();
 
   const [name, setName] = useState("");
-  const [gender, setGender] = useState<"Male" | "Female">("Male");
   const [email, setEmail] = useState("");
   const [ecName, setEcName] = useState("");
   const [ecContact, setEcContact] = useState("");
@@ -41,9 +40,7 @@ export default function Profile() {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.bg }}>
-      {/* everything scrolls together now */}
       <ScrollView contentContainerStyle={s.container} keyboardShouldPersistTaps="handled">
-        {/* Header moved inside ScrollView */}
         <View style={s.header}>
           <Pressable onPress={() => r.back()} hitSlop={12} style={s.backBtn}>
             <Ionicons name="chevron-back" size={22} color="#fff" />
@@ -57,29 +54,9 @@ export default function Profile() {
           </View>
         </View>
 
-        {/* Form */}
         <Label>Name</Label>
         <Input placeholder="Enter name" value={name} onChangeText={setName} />
 
-        <Label>Gender</Label>
-        <View style={s.row}>
-          <Pill active={gender === "Male"} onPress={() => setGender("Male")} label="Male">
-            <Ionicons
-              name="information-circle-outline"
-              size={16}
-              color={gender === "Male" ? "#fff" : "#9CA3AF"}
-              style={{ marginLeft: 6 }}
-            />
-          </Pill>
-          <Pill active={gender === "Female"} onPress={() => setGender("Female")} label="Female">
-            <Ionicons
-              name="female-outline"
-              size={16}
-              color={gender === "Female" ? "#fff" : "#9CA3AF"}
-              style={{ marginLeft: 6 }}
-            />
-          </Pill>
-        </View>
 
         <Label>Email</Label>
         <Input
@@ -117,7 +94,6 @@ export default function Profile() {
   );
 }
 
-/* UI helpers */
 function Label({ children }: { children: React.ReactNode }) {
   return <Text style={s.label}>{children}</Text>;
 }
@@ -146,7 +122,6 @@ function Pill({
   );
 }
 
-/* styles */
 const s = StyleSheet.create({
   container: { paddingBottom: 28 },
   header: {
