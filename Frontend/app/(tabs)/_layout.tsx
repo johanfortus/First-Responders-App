@@ -11,6 +11,8 @@ export default function _layout() {
         tabBarStyle: styles.tabBar,
         tabBarActiveTintColor: '#F66B0E',
         tabBarInactiveTintColor: '#666666',
+        animation: 'fade',
+        animationDuration: 300,
     }}>
         <Tabs.Screen 
             name='index' 

@@ -1,5 +1,5 @@
 import { Text, View, StyleSheet, Image, ScrollView, Modal, TouchableOpacity, SafeAreaView } from "react-native";
-import { Link } from "expo-router";
+import { Link, useRouter } from "expo-router";
 import { useState } from "react";
 import makeCall from "../../utils/makeCall";
 import sendSMS from "../../utils/sendSMS";
@@ -10,7 +10,7 @@ import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 export default function Index() {
 	const [numbersModalVisible, setNumbersModalVisible] = useState(false);
 	const [resourcesModalVisible, setResourcesModalVisible] = useState(false);
-
+	const router = useRouter();
 	return (
 		<SafeAreaView style={styles.container}>
 			<ScrollView 
@@ -69,7 +69,10 @@ export default function Index() {
 					</View>
 					
 					<View style={styles.resourceCardsContainer}>
-						<TouchableOpacity style={styles.resourceCard}>
+						<TouchableOpacity 
+							style={styles.resourceCard}
+							onPress={() => router.push('/resource_1')}
+						>
 							<View style={styles.resourceCardContent}>
 								<View style={styles.resourceTextContainer}>
 									<Text style={styles.resourceCardTitle}>Taking Care of You</Text>
@@ -81,7 +84,10 @@ export default function Index() {
 							</View>
 						</TouchableOpacity>
 						
-						<TouchableOpacity style={styles.resourceCard}>
+						<TouchableOpacity 
+							style={styles.resourceCard}
+							onPress={() => router.push('/resource_2')}
+						>
 							<View style={styles.resourceCardContent}>
 								<View style={styles.resourceTextContainer}>
 									<Text style={styles.resourceCardTitle}>The Power of Family & Connection</Text>
@@ -93,7 +99,10 @@ export default function Index() {
 							</View>
 						</TouchableOpacity>
 						
-						<TouchableOpacity style={styles.resourceCard}>
+						<TouchableOpacity 
+							style={styles.resourceCard}
+							onPress={() => router.push('/resource_3')}
+						>
 							<View style={styles.resourceCardContent}>
 								<View style={styles.resourceTextContainer}>
 									<Text style={styles.resourceCardTitle}>Approaching a Member in Need</Text>
