@@ -27,8 +27,13 @@ export default function Index() {
 					<Image source={require('../../assets/images/stroke.png')} style={styles.strokeGraphic}/>
 				</View>
 
-				{/* <Link href="../contacts" style={styles.visitLink}>Visit Contacts Page</Link>
-				<Link href="../checkin" style={styles.visitLink}>Visit Checkin Page</Link> */}
+				{/* Test PostCallPause */}
+				<TouchableOpacity 
+					style={styles.testButton}
+					onPress={() => router.push("/(modals)/post-call-pause?incidentId=inc_123&severity=0.82")}
+				>
+					<Text style={styles.testButtonText}>Test Post-Call Pause</Text>
+				</TouchableOpacity>
 
 				<View style={styles.sectionContainer}>
 					<View style={styles.sectionHeader}>
@@ -353,5 +358,19 @@ const styles = StyleSheet.create({
 		backgroundColor: '#F66B0E',
 		justifyContent: 'center',
 		alignItems: 'center',
+	},
+	testButton: {
+		backgroundColor: '#F66B0E',
+		paddingHorizontal: 20,
+		paddingVertical: 12,
+		borderRadius: 8,
+		marginHorizontal: 20,
+		marginBottom: 20,
+		alignItems: 'center',
+	},
+	testButtonText: {
+		color: 'white',
+		fontSize: 16,
+		fontWeight: '600',
 	}
 })

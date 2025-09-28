@@ -1,10 +1,8 @@
-// app/profile.tsx
-import React, { useState } from "react";
+import React from "react";
 import {
   View,
   Text,
   StyleSheet,
-  TextInput,
   Pressable,
   Image,
   ScrollView,
@@ -22,193 +20,226 @@ const COLORS = {
   field: "#FFFFFF",
   fieldBorder: "#E5E7EB",
   bg: "#F6F8FA",
+  cardBg: "#FFFFFF",
 };
 
 export default function Profile() {
   const r = useRouter();
 
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [ecName, setEcName] = useState("");
-  const [ecContact, setEcContact] = useState("");
-  const [ecRelation, setEcRelation] = useState("");
-  const [ptName, setPtName] = useState("");
-  const [ptContact, setPtContact] = useState("");
-
   const avatar =
     "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=300&auto=format&fit=crop";
 
-  return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.navy }} edges={['bottom']}>
-      <ScrollView contentContainerStyle={s.container} keyboardShouldPersistTaps="handled">
-        <View style={s.header}>
-          <Pressable onPress={() => r.back()} hitSlop={12} style={s.backBtn}>
-            <Ionicons name="chevron-back" size={22} color="#fff" />
-          </Pressable>
+  const menuItems = [
+    // {
+    //   icon: "person-outline",
+    //   title: "Edit Profile",
+    //   subtitle: "Update your personal information",
+    //   onPress: () => r.push("/edit_profile"),
+    //   color: "#3B82F6",
+    // },
+    {
+      icon: "shield-checkmark-outline",
+      title: "Mental Health Resources",
+      subtitle: "Access support materials",
+      onPress: () => r.push("/contacts"),
+      color: "#10B981",
+    },
+    {
+      icon: "call-outline",
+      title: "Emergency Contacts",
+      subtitle: "Quick access to support",
+      onPress: () => r.push("/contacts"),
+      color: "#EF4444",
+    },
+    {
+      icon: "document-text-outline",
+      title: "Terms and Policy",
+      subtitle: "Privacy and usage guidelines",
+      onPress: () => {},
+      color: "#6366F1",
+    },
+    {
+      icon: "help-circle-outline",
+      title: "Frequently Asked Questions",
+      subtitle: "Get help and support",
+      onPress: () => {},
+      color: "#8B5CF6",
+    },
+    {
+      icon: "log-out-outline",
+      title: "Log Out",
+      subtitle: "Sign out of your account",
+      onPress: () => {},
+      color: "#6B7280",
+    },
+  ];
 
-          <View style={s.avatarWrap}>
-            <Image source={{ uri: avatar }} style={s.avatar} />
-            <Pressable style={s.camBadge}>
-              <Ionicons name="camera" size={14} color={COLORS.orange} />
-            </Pressable>
+  return (
+    <SafeAreaView style={s.container} edges={['bottom']}>
+      <ScrollView style={s.scrollView} showsVerticalScrollIndicator={false}>
+        {/* Profile Section */}
+        <View style={s.profileSection}>
+          <View style={s.profileInfo}>
+            <View style={s.avatarContainer}>
+              <Image source={{ uri: avatar }} style={s.avatar} />
+              <View style={s.cameraIcon}>
+                <Ionicons name="camera" size={12} color={COLORS.orange} />
+              </View>
+            </View>
+            <View style={s.profileText}>
+              <Text style={s.profileName}>First Responder Name</Text>
+              <Pressable style={s.personalInfoRow} onPress={() => r.push("/edit_profile")}>
+                <Text style={s.personalInfoText}>Personal Information</Text>
+                <Ionicons name="chevron-forward" size={16} color={COLORS.sub} />
+              </Pressable>
+            </View>
           </View>
         </View>
 
-        <Label>Name</Label>
-        <Input placeholder="Enter name" value={name} onChangeText={setName} />
-
-
-        <Label>Email</Label>
-        <Input
-          placeholder="Enter your email"
-          autoCapitalize="none"
-          keyboardType="email-address"
-          value={email}
-          onChangeText={setEmail}
-        />
-
-        <SectionTitle>Emergency Contact</SectionTitle>
-        <Input placeholder="Enter name" value={ecName} onChangeText={setEcName} />
-        <Input
-          placeholder="Enter contact"
-          keyboardType="phone-pad"
-          value={ecContact}
-          onChangeText={setEcContact}
-        />
-        <Input placeholder="Enter relation" value={ecRelation} onChangeText={setEcRelation} />
-
-        <SectionTitle>Preferred Therapist</SectionTitle>
-        <Input placeholder="Enter name" value={ptName} onChangeText={setPtName} />
-        <Input
-          placeholder="Enter contact"
-          keyboardType="phone-pad"
-          value={ptContact}
-          onChangeText={setPtContact}
-        />
-
-        <Pressable style={s.saveBtn} onPress={() => {}}>
-          <Text style={s.saveTxt}>Save</Text>
-        </Pressable>
+        {/* Menu Items */}
+        <View style={s.menuContainer}>
+          {menuItems.map((item, index) => (
+            <Pressable key={index} style={s.menuCard} onPress={item.onPress}>
+              <View style={[s.menuIcon, { backgroundColor: `${item.color}15` }]}>
+                <Ionicons name={item.icon} size={20} color={item.color} />
+              </View>
+              <View style={s.menuContent}>
+                <Text style={s.menuTitle}>{item.title}</Text>
+                <Text style={s.menuSubtitle}>{item.subtitle}</Text>
+              </View>
+              <Ionicons name="chevron-forward" size={16} color={COLORS.sub} />
+            </Pressable>
+          ))}
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
 }
 
-function Label({ children }: { children: React.ReactNode }) {
-  return <Text style={s.label}>{children}</Text>;
-}
-function SectionTitle({ children }: { children: React.ReactNode }) {
-  return <Text style={s.sectionTitle}>{children}</Text>;
-}
-function Input(props: React.ComponentProps<typeof TextInput>) {
-  return <TextInput style={s.input} placeholderTextColor="#A1A1AA" {...props} />;
-}
-function Pill({
-  active,
-  onPress,
-  label,
-  children,
-}: {
-  active: boolean;
-  onPress: () => void;
-  label: string;
-  children?: React.ReactNode;
-}) {
-  return (
-    <Pressable onPress={onPress} style={[s.pill, active && s.pillActive]}>
-      <Text style={[s.pillTxt, active && s.pillTxtActive]}>{label}</Text>
-      {children}
-    </Pressable>
-  );
-}
-
 const s = StyleSheet.create({
-  container: { 
-    paddingBottom: 28,
+  container: {
+    flex: 1,
     backgroundColor: COLORS.bg,
   },
-  header: {
-    backgroundColor: COLORS.navy,
-    paddingTop: 12,
-    paddingBottom: 24,
-    borderBottomLeftRadius: 28,
-    borderBottomRightRadius: 28,
-    alignItems: "center",
-    marginBottom: 16,
-  },
-  backBtn: {
-    position: "absolute",
-    left: 16,
-    top: 12,
-    width: 36,
-    height: 36,
-    borderRadius: 12,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  avatarWrap: {
-    marginTop: 24,
-    width: 96,
-    height: 96,
-    borderRadius: 20,
-    borderWidth: 4,
-    borderColor: COLORS.orange,
-    overflow: "hidden",
-  },
-  avatar: { width: "100%", height: "100%" },
-  camBadge: {
-    position: "absolute",
-    right: -4,
-    bottom: -4,
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    backgroundColor: "#fff",
-    alignItems: "center",
-    justifyContent: "center",
-    borderWidth: 1,
-    borderColor: "#FFE0CC",
-  },
-
-  label: { color: COLORS.text, fontWeight: "700", marginBottom: 8, fontSize: 16, paddingHorizontal: 18 },
-  sectionTitle: { color: COLORS.text, fontWeight: "700", marginTop: 10, marginBottom: 8, fontSize: 16, paddingHorizontal: 18 },
-
-  input: {
-    height: 52,
-    borderRadius: 16,
-    backgroundColor: COLORS.field,
-    borderWidth: 1,
-    borderColor: COLORS.fieldBorder,
-    paddingHorizontal: 14,
-    marginBottom: 14,
-    marginHorizontal: 18,
-  },
-
-  row: { flexDirection: "row", gap: 14, marginBottom: 14, paddingHorizontal: 18 },
-  pill: {
+  scrollView: {
     flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    height: 52,
-    borderRadius: 14,
-    borderWidth: 2,
-    borderColor: "#CBD5E1",
-    backgroundColor: "#FFFFFF",
+    paddingTop: 20,
   },
-  pillActive: { borderColor: "#3B82F6", backgroundColor: "#E6F0FF" },
-  pillTxt: { color: "#6B7280", fontWeight: "700" },
-  pillTxtActive: { color: "#1D4ED8" },
-
-  saveBtn: {
-    marginTop: 6,
-    marginBottom: 6,
-    backgroundColor: "#F66B0E",
+  profileSection: {
+    backgroundColor: COLORS.cardBg,
+    marginHorizontal: 20,
+    borderRadius: 20,
+    padding: 20,
+    marginBottom: 20,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  profileInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  avatarContainer: {
+    position: 'relative',
+    marginRight: 16,
+  },
+  avatar: {
+    width: 60,
     height: 60,
-    borderRadius: 26,
-    alignItems: "center",
-    justifyContent: "center",
-    marginHorizontal: 18,
+    borderRadius: 30,
   },
-  saveTxt: { color: "#fff", fontSize: 18, fontWeight: "700" },
+  cameraIcon: {
+    position: 'absolute',
+    bottom: 0,
+    right: 0,
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: COLORS.orange,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  profileText: {
+    flex: 1,
+  },
+  profileName: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: COLORS.text,
+    marginBottom: 4,
+  },
+  personalInfoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  personalInfoText: {
+    fontSize: 14,
+    color: COLORS.sub,
+    marginRight: 4,
+  },
+  notificationIcon: {
+    position: 'relative',
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: COLORS.navy,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  notificationDot: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#10B981',
+  },
+  menuContainer: {
+    paddingHorizontal: 20,
+    paddingBottom: 20,
+  },
+  menuCard: {
+    backgroundColor: COLORS.cardBg,
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  menuIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 16,
+  },
+  menuContent: {
+    flex: 1,
+  },
+  menuTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: COLORS.text,
+    marginBottom: 2,
+  },
+  menuSubtitle: {
+    fontSize: 14,
+    color: COLORS.sub,
+  },
 });

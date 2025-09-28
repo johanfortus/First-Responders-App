@@ -24,7 +24,7 @@ export default function ResourceArticle() {
   const [saved, setSaved] = useState(false);
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.bg }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.bg }} edges={['bottom']}>
       <View style={s.top}>
         <Pressable accessibilityRole="button" onPress={() => r.back()} style={s.iconBtn}>
           <Ionicons name="chevron-back" size={24} color={COLORS.title} />
