@@ -125,7 +125,7 @@ export default function Index() {
 					<SafeAreaView style={styles.modalContainer}>
 						<View style={styles.modalContent}>
 							<View style={styles.modalHeader}>
-								<Text style={styles.modalTitle}>Resources</Text>
+								<Text style={styles.modalTitle}>Important Numbers</Text>
 								<TouchableOpacity 
 									onPress={() => setNumbersModalVisible(false)}
 									style={styles.closeButton}
@@ -187,14 +187,8 @@ const styles = StyleSheet.create({
 		alignItems: "flex-end",
 		alignSelf: "flex-start",
 		height: 180,
-		width: "90%",
-		marginTop: 14,
-
-		borderTopLeftRadius: 0,
-		borderTopRightRadius: 15,
-		borderBottomLeftRadius: 0,
-		borderBottomRightRadius: 15,
-		
+		width: "100%",
+		marginTop: 14,		
 		backgroundColor: "#F66B0E",
 	},
 	visitLink: {
@@ -211,7 +205,7 @@ const styles = StyleSheet.create({
 	},
 	bannerHeader: {
 		color: 'white',
-		fontSize: 16,
+		fontSize: 20,
 		fontWeight: '600',
 	},
 	bannerSubHeader: {
