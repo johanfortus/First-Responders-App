@@ -46,6 +46,7 @@ def add_call():
     data = request.json
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 <<<<<<< HEAD
 =======
@@ -58,6 +59,11 @@ def add_call():
 =======
 
 >>>>>>> 1658a2e (put)
+=======
+
+    callID = len(collection = db["call_records"].find()) + 1
+
+>>>>>>> 31209f4 (initial backend setup)
     # Validate required fields
     required_fields = ["userID", "transcripts", "severityScore", "date"]
     for field in required_fields:
@@ -74,6 +80,7 @@ def add_call():
     new_call = {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         "callID": data["callID"],
 =======
         "callID": callID,
@@ -81,6 +88,9 @@ def add_call():
 =======
         "callID": data["callID"],
 >>>>>>> 149f6a5 (pussghing)
+=======
+        "callID": callID,
+>>>>>>> 31209f4 (initial backend setup)
         "userID": data["userID"],
         "transcripts": data["transcripts"],
         "severityScore": data["severityScore"],
@@ -96,6 +106,7 @@ def add_call():
     }), 201
 
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -200,6 +211,20 @@ def put_call(userID):
         "user": updated_user
     }), 200
 >>>>>>> 1658a2e (put)
+=======
+# @app.route('/users/<userID>', methods=['GET'])
+# def get_user(userID):
+#     collection = db["users"]
+
+#     # Find the user document by userID (string)
+#     user = collection.find_one({"userID": userID})
+
+#     if not user:
+#         return jsonify({"error": f"No user found with userID {userID}"}), 404
+
+#     print("User document:", user)  # Debug print
+#     return jsonify(user)
+>>>>>>> 31209f4 (initial backend setup)
 
 
 if __name__ == "__main__":
