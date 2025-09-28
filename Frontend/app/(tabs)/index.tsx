@@ -13,7 +13,11 @@ export default function Index() {
 
 	return (
 		<SafeAreaView style={styles.container}>
-			<ScrollView style={styles.scrollContainer} showsVerticalScrollIndicator={false}>
+			<ScrollView 
+				style={styles.scrollContainer} 
+				contentContainerStyle={styles.scrollContentContainer}
+				showsVerticalScrollIndicator={false}
+			>
 				<Text style={styles.homeHeader}>Home</Text>
 				<View style={styles.homeBanner}>
 					<View style={styles.bannerTextContainer}>
@@ -155,10 +159,13 @@ export default function Index() {
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
-		backgroundColor: '#F5F5F5',
+		backgroundColor: '#EFEFEF',
 	},
 	scrollContainer: {
 		flex: 1,
+	},
+	scrollContentContainer: {
+		paddingBottom: 80,
 	},
 	homeHeader: {
 		fontSize: 24,
