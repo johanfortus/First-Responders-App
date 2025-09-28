@@ -45,6 +45,11 @@ def home():
 def add_call():
     data = request.json
 
+<<<<<<< HEAD
+=======
+    callID = len(collection = db["call_records"].find()) + 1
+
+>>>>>>> add0c6e (add Flask app with MongoDB integration and call endpoint)
     # Validate required fields
     required_fields = ["userID", "transcripts", "severityScore", "date"]
     for field in required_fields:
@@ -59,7 +64,11 @@ def add_call():
 
     # Prepare new call document
     new_call = {
+<<<<<<< HEAD
         "callID": data["callID"],
+=======
+        "callID": callID,
+>>>>>>> add0c6e (add Flask app with MongoDB integration and call endpoint)
         "userID": data["userID"],
         "transcripts": data["transcripts"],
         "severityScore": data["severityScore"],
@@ -75,6 +84,7 @@ def add_call():
     }), 201
 
 
+<<<<<<< HEAD
 @app.route('/user/<userID>', methods=['PUT'])
 def put_call(userID):
     data = request.json
@@ -113,6 +123,20 @@ def put_call(userID):
         "message": f"Successfully added callID {callID} to user {userID}",
         "user": updated_user
     }), 200
+=======
+# @app.route('/users/<userID>', methods=['GET'])
+# def get_user(userID):
+#     collection = db["users"]
+
+#     # Find the user document by userID (string)
+#     user = collection.find_one({"userID": userID})
+
+#     if not user:
+#         return jsonify({"error": f"No user found with userID {userID}"}), 404
+
+#     print("User document:", user)  # Debug print
+#     return jsonify(user)
+>>>>>>> add0c6e (add Flask app with MongoDB integration and call endpoint)
 
 
 if __name__ == "__main__":
