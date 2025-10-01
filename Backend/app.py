@@ -5,6 +5,8 @@ import certifi
 import json
 import os
 import sys
+import threading
+import time
 from datetime import datetime
 from dotenv import load_dotenv
 
@@ -45,6 +47,49 @@ except Exception as e:
 
 db = client["development"]
 collection = db["call_records"]
+
+# Load threshold configuration
+def load_threshold_config():
+    config_path = os.path.join(parent_dir, "Agents", "first_responder_agent", "config.json")
+    try:
+        with open(config_path, 'r') as f:
+            config = json.load(f)
+            return config.get("thresholds", {}).get("auto_escalate", 0.78)
+    except Exception as e:
+        print(f"Failed to load threshold config: {e}")
+        return 0.78  # Default threshold
+
+CHAT_TRIGGER_THRESHOLD = load_threshold_config()
+
+def trigger_chat_after_delay(user_id, call_id, severity_score, delay_seconds=10):
+    """
+    Trigger chat in frontend after specified delay if severity meets threshold
+    """
+    def delayed_trigger():
+        time.sleep(delay_seconds)
+        try:
+            # Create notification payload for chat trigger
+            chat_trigger_payload = {
+                "user_id": user_id,
+                "call_id": call_id,
+                "severity_score": severity_score,
+                "action": "trigger_chat",
+                "timestamp": datetime.now().isoformat()
+            }
+
+            # Store the chat trigger event in database for frontend to check
+            chat_collection = db["chat_triggers"]
+            chat_collection.insert_one(chat_trigger_payload)
+
+            print(f"Chat triggered for user {user_id} after {delay_seconds} seconds due to severity {severity_score}")
+
+        except Exception as e:
+            print(f"Failed to trigger chat for user {user_id}: {e}")
+
+    # Start the delayed trigger in a separate thread
+    trigger_thread = threading.Thread(target=delayed_trigger)
+    trigger_thread.daemon = True
+    trigger_thread.start()
 
 # -----------------------------
 # Home route
@@ -178,6 +223,23 @@ def analyze_call():
             call_id=data["call_id"],
             user_id=data["user_id"]
         )
+
+        # Check if severity score meets threshold for chat trigger
+        if result["status"] == "success" and "severity_score" in result:
+            severity_score = result["severity_score"] / 100.0  # Convert to 0-1 scale to match threshold
+            if severity_score >= CHAT_TRIGGER_THRESHOLD:
+                # Trigger chat after 10 seconds
+                trigger_chat_after_delay(
+                    user_id=data["user_id"],
+                    call_id=data["call_id"],
+                    severity_score=result["severity_score"]
+                )
+                result["chat_trigger_scheduled"] = True
+                result["threshold_met"] = True
+            else:
+                result["chat_trigger_scheduled"] = False
+                result["threshold_met"] = False
+
         return jsonify(result), 200 if result["status"] == "success" else 500
 
     except Exception as e:
@@ -247,6 +309,7 @@ def send_notification_endpoint():
         "status": "success",
         "message": "Notification sent successfully"
     }), 200
+
 
 
 @app.route('/chat-with-gemini', methods=['POST'])

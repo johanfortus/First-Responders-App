@@ -2,8 +2,10 @@ from google.adk.agents import Agent
 from datetime import datetime
 import json
 import os
+import threading
+import time
 from .utils import (
-    load_config, 
+    load_config,
     send_to_backend,
     calculate_severity_score,
     calculate_wellness_scores,
@@ -12,6 +14,40 @@ from .utils import (
 
 # Load configuration
 config = load_config()
+
+def trigger_chat_after_delay(user_id: str, call_id: int, severity_score: int, delay_seconds: int = 10):
+    """
+    Trigger chat notification after delay when severity meets threshold
+    """
+    def delayed_trigger():
+        time.sleep(delay_seconds)
+        try:
+            # Create chat trigger notification
+            chat_trigger_data = {
+                "user_id": user_id,
+                "call_id": call_id,
+                "severity_score": severity_score,
+                "action": "trigger_chat",
+                "timestamp": datetime.now().isoformat(),
+                "message": f"High severity call detected (score: {severity_score}). Support chat available."
+            }
+
+            # Post notification to backend endpoint that frontend polls
+            result = send_to_backend("notifications", chat_trigger_data)
+
+            if result and result.get("status") == "success":
+                print(f"✓ Chat trigger notification sent for user {user_id} after {delay_seconds}s (call {call_id}, severity {severity_score})")
+            else:
+                print(f"✗ Failed to send chat trigger notification for user {user_id}")
+
+        except Exception as e:
+            print(f"✗ Error triggering chat notification: {e}")
+
+    # Start delayed trigger in background thread
+    trigger_thread = threading.Thread(target=delayed_trigger)
+    trigger_thread.daemon = True
+    trigger_thread.start()
+    print(f"Chat trigger scheduled for user {user_id} in {delay_seconds} seconds")
 
 def analyze_call_and_update_wellness(transcript: str, call_id: int, user_id: str) -> dict:
     """
@@ -35,6 +71,12 @@ def analyze_call_and_update_wellness(transcript: str, call_id: int, user_id: str
 
         # Calculate severity score (1-100) using only transcript
         severity_score = calculate_severity_score(transcript, user_id, config)
+
+        # Check if severity meets threshold for chat trigger (from config: auto_escalate = 0.78)
+        threshold = config.get("thresholds", {}).get("auto_escalate", 0.78)
+        if severity_score / 100.0 >= threshold:
+            # Trigger chat after 10 seconds
+            trigger_chat_after_delay(user_id, call_id, severity_score, delay_seconds=10)
 
         # Create call record matching backend schema
         call_record = {

@@ -1,100 +1,44 @@
-# Welcome to your Expo app 👋
+# ARC: Action, Resources, Care  
+*A confidential check-in and resource app for first responders*  
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+---
 
-## Get started
+## 💡 Inspiration  
+ARC was inspired by the lived experiences of firefighters in our team’s families. First responders face repeated exposure to high-intensity and emotionally difficult calls.  
 
-1. Install dependencies
+Studies show first responders are more likely to die by suicide than in the line of duty. To validate this need, we interviewed **41 first responders**:  
 
-   ```bash
-   npm install
-   ```
+- **61%** knew of department resources but do not use them.  
+- **41%** said a call sometimes affects them after shift.  
+- Top barriers: **40% stigma/fear of judgment**, **27.5% discomfort talking directly to someone**.  
+- **78%** rated 3 or above (out of 5) on usefulness of an app like this.  
+- Over **50%** chose peer mentor chat and therapist scheduling as their top desired features.
 
-2. Start the app
+## ⚙️ What it Does  
+ARC is a mobile app that:  
+- Provides **quick, confidential app-based check-ins** after difficult calls (AI-enhanced).  
+- Lets users indicate if they’re **OK or not OK**, with guided follow-up options.  
+- Connects responders to **union therapists, personal therapists, peer mentors, or trusted contacts**.  
+- Includes a **resources library**: hotlines, guides, articles, and videos.  
+- Offers a **chatbot** for grounding tips and micro check-ins.  
+- Keeps everything **confidential, user-driven, and stigma-reducing**.  
 
-   ```bash
-   npx expo start
-   ```
+---
 
-In the output, you'll find options to open the app in a
+## 🛠️ How We Built It  
+- **Frontend**: React Native with Expo + TypeScript  
+- **Navigation**: Expo Router (onboarding, login, home, check-in, resources, contacts, profile)  
+- **Auth**: Auth0 for secure login  
+- **Design**: Figma wireframes, firefighter-inspired color palette (navy + orange), Poppins typography  
+- **Prototype AI**: in-app chatbox for support tips and grounding exercises  
+- **Backend (prototype)**: Node.js lightweight endpoints for storing profile + scheduling
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+---
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
-```
-
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Agents Setup
-
-The `Agents/` directory contains intelligent agents built with Google's Agent Development Kit (ADK).
-
-### Prerequisites
-- Python 3.8+
-- Google Cloud Project with appropriate APIs enabled
-- Google API key with Agent Development Kit access
-
-### Setup Instructions
-
-1. **Navigate to agents directory:**
-   ```bash
-   cd Agents
-   ```
-
-2. **Create and activate virtual environment:**
-   ```bash
-   python -m venv .venv
-
-   # On Windows
-   .venv\Scripts\activate
-
-   # On macOS/Linux
-   source .venv/bin/activate
-   ```
-
-3. **Install dependencies:**
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-4. **Configure environment variables:**
-   Update `.env` file with your Google Cloud credentials:
-   ```
-   GOOGLE_API_KEY=your_google_api_key_here
-   GOOGLE_CLOUD_PROJECT=your_project_id
-   GOOGLE_CLOUD_LOCATION=global
-   ```
-
-5. **Test the setup:**
-   ```bash
-   python test.py
-   ```
-
-6. **Deploy agent (optional):**
-   ```bash
-   adk deploy cloud_run --project=$env:GOOGLE_CLOUD_PROJECT --region=$env:GOOGLE_CLOUD_LOCATION --service_name=multi-tool-agent-service --app_name=multi-tool-agent-app --with_ui multi_tool_agent
-   ```
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+## 🚀 Features  
+- Confidential **AI-powered check-ins**  
+- **Peer mentor chat** in-app  
+- **Therapist scheduling** (calls, texts, appointments)  
+- **Emergency/trusted contact notifications** after tough calls  
+- **Resource hub** with guides, articles, hotlines, and videos  
+- Custom **bottom navigation bar** for quick access  
