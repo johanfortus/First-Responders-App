@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -8,25 +8,145 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '../theme/colors';
 
+interface Message {
+  id: string;
+  text: string;
+  isUser: boolean;
+  timestamp: Date;
+}
+
 export default function Chat() {
   const params = useLocalSearchParams();
   const router = useRouter();
   const [message, setMessage] = useState('');
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [isTyping, setIsTyping] = useState(false);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const scrollViewRef = useRef<ScrollView>(null);
 
   const incidentId = params.incidentId as string || 'demo';
   const severity = params.severity as string || '0.82';
 
-  const handleSend = () => {
-    if (message.trim()) {
-      // Placeholder for sending message
-      console.log('Sending message:', message);
-      setMessage('');
+  // Initialize with welcome message
+  useEffect(() => {
+    const welcomeMessage: Message = {
+      id: '1',
+      text: "Hi there. How are you feeling after that call? I'm here to listen and support you.",
+      isUser: false,
+      timestamp: new Date(),
+    };
+    setMessages([welcomeMessage]);
+  }, []);
+
+  // Auto-scroll to bottom when new messages arrive
+  useEffect(() => {
+    setTimeout(() => {
+      scrollViewRef.current?.scrollToEnd({ animated: true });
+    }, 100);
+  }, [messages]);
+
+  const sendToGemini = async (userMessage: string): Promise<string> => {
+    try {
+      // Simulate Gemini API call - replace with actual Gemini API
+      const response = await fetch('http://localhost:5000/chat-with-gemini', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message: userMessage,
+          context: `Emergency responder after a ${severity} severity call. Be supportive and assess their mental state.`,
+          incidentId: incidentId,
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        return data.response;
+      } else {
+        throw new Error('Failed to get response from Gemini');
+      }
+    } catch (error) {
+      console.error('Gemini API error:', error);
+      // Fallback responses for demo
+      return getFallbackResponse(userMessage);
+    }
+  };
+
+  const getFallbackResponse = (userMessage: string): string => {
+    const lowerMessage = userMessage.toLowerCase();
+    
+    // Mental health assessment keywords
+    if (lowerMessage.includes('not good') || lowerMessage.includes('terrible') || 
+        lowerMessage.includes('awful') || lowerMessage.includes('horrible') ||
+        lowerMessage.includes('can\'t cope') || lowerMessage.includes('overwhelmed') ||
+        lowerMessage.includes('depressed') || lowerMessage.includes('suicidal') ||
+        lowerMessage.includes('want to die') || lowerMessage.includes('end it all')) {
+      return 'CRISIS_DETECTED';
+    }
+    
+    if (lowerMessage.includes('struggling') || lowerMessage.includes('hard time') ||
+        lowerMessage.includes('difficult') || lowerMessage.includes('stress') ||
+        lowerMessage.includes('anxiety') || lowerMessage.includes('worried')) {
+      return "I can hear that you're going through a tough time right now. It's completely understandable to feel this way after a difficult call. You're not alone in this. Would you like me to connect you with someone who can provide additional support?";
+    }
+    
+    if (lowerMessage.includes('okay') || lowerMessage.includes('fine') ||
+        lowerMessage.includes('alright') || lowerMessage.includes('good')) {
+      return "I'm glad to hear you're doing okay. It's important to check in with yourself regularly after these kinds of calls. Is there anything specific about the call that's on your mind?";
+    }
+    
+    // Default supportive response
+    return "Thank you for sharing that with me. It takes courage to talk about these experiences. How are you feeling physically right now? Are you getting enough rest?";
+  };
+
+  const handleSend = async () => {
+    if (!message.trim() || isTyping) return;
+
+    const userMessage: Message = {
+      id: Date.now().toString(),
+      text: message.trim(),
+      isUser: true,
+      timestamp: new Date(),
+    };
+
+    setMessages(prev => [...prev, userMessage]);
+    setMessage('');
+    setIsTyping(true);
+
+    try {
+      const response = await sendToGemini(userMessage.text);
+      
+      if (response === 'CRISIS_DETECTED') {
+        // Redirect to contacts immediately
+        setTimeout(() => {
+          router.push('/(tabs)/contacts');
+        }, 1000);
+        return;
+      }
+
+      // Simulate typing delay
+      setTimeout(() => {
+        const botMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          text: response,
+          isUser: false,
+          timestamp: new Date(),
+        };
+        setMessages(prev => [...prev, botMessage]);
+        setIsTyping(false);
+      }, 1500);
+
+    } catch (error) {
+      console.error('Error sending message:', error);
+      setIsTyping(false);
     }
   };
 
@@ -34,8 +154,24 @@ export default function Chat() {
     router.back();
   };
 
+  const renderMessage = (msg: Message) => (
+    <View key={msg.id} style={styles.messageContainer}>
+      <View style={[
+        styles.messageBubble,
+        msg.isUser ? styles.userMessage : styles.botMessage
+      ]}>
+        <Text style={[
+          styles.messageText,
+          msg.isUser ? styles.userMessageText : styles.botMessageText
+        ]}>
+          {msg.text}
+        </Text>
+      </View>
+    </View>
+  );
+
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
         <Pressable onPress={handleBack} style={styles.backButton}>
@@ -50,25 +186,24 @@ export default function Chat() {
         style={styles.chatContainer}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
-        <ScrollView style={styles.messagesContainer} contentContainerStyle={styles.messagesContent}>
-          {/* Welcome message */}
-          <View style={styles.messageContainer}>
-            <View style={styles.botMessage}>
-              <Text style={styles.messageText}>
-                Hi there. How are you feeling after that call?
-              </Text>
+        <ScrollView 
+          ref={scrollViewRef}
+          style={styles.messagesContainer} 
+          contentContainerStyle={styles.messagesContent}
+          showsVerticalScrollIndicator={false}
+        >
+          {messages.map(renderMessage)}
+          
+          {isTyping && (
+            <View style={styles.messageContainer}>
+              <View style={styles.botMessage}>
+                <View style={styles.typingIndicator}>
+                  <ActivityIndicator size="small" color={COLORS.navy} />
+                  <Text style={styles.typingText}>Support is typing...</Text>
+                </View>
+              </View>
             </View>
-          </View>
-
-          {/* Debug info (remove in production) */}
-          <View style={styles.debugContainer}>
-            <Text style={styles.debugText}>
-              Incident ID: {incidentId}
-            </Text>
-            <Text style={styles.debugText}>
-              Severity: {severity}
-            </Text>
-          </View>
+          )}
         </ScrollView>
 
         {/* Message input */}
@@ -82,22 +217,26 @@ export default function Chat() {
               onChangeText={setMessage}
               multiline
               maxLength={500}
+              editable={!isTyping}
             />
             <Pressable 
-              style={[styles.sendButton, !message.trim() && styles.sendButtonDisabled]}
+              style={[
+                styles.sendButton, 
+                (!message.trim() || isTyping) && styles.sendButtonDisabled
+              ]}
               onPress={handleSend}
-              disabled={!message.trim()}
+              disabled={!message.trim() || isTyping}
             >
               <Ionicons 
                 name="send" 
                 size={20} 
-                color={message.trim() ? COLORS.white : COLORS.steelBlue} 
+                color={(message.trim() && !isTyping) ? COLORS.white : COLORS.steelBlue} 
               />
             </Pressable>
           </View>
         </View>
       </KeyboardAvoidingView>
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -111,7 +250,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 20,
-    paddingVertical: 16,
+    paddingTop: 50,
+    paddingBottom: 16,
     backgroundColor: COLORS.steelBlue,
     borderBottomWidth: 1,
     borderBottomColor: COLORS.navy,
@@ -140,30 +280,40 @@ const styles = StyleSheet.create({
   messageContainer: {
     marginBottom: 16,
   },
-  botMessage: {
-    backgroundColor: COLORS.softGray,
+  messageBubble: {
+    maxWidth: '85%',
     padding: 16,
     borderRadius: 16,
+  },
+  botMessage: {
+    backgroundColor: COLORS.softGray,
     borderBottomLeftRadius: 4,
-    maxWidth: '85%',
     alignSelf: 'flex-start',
+  },
+  userMessage: {
+    backgroundColor: COLORS.safetyOrange,
+    borderBottomRightRadius: 4,
+    alignSelf: 'flex-end',
   },
   messageText: {
     fontSize: 16,
-    color: COLORS.navy,
     lineHeight: 22,
   },
-  debugContainer: {
-    backgroundColor: COLORS.steelBlue,
-    padding: 12,
-    borderRadius: 8,
-    marginTop: 20,
-    opacity: 0.7,
+  botMessageText: {
+    color: COLORS.navy,
   },
-  debugText: {
-    fontSize: 12,
+  userMessageText: {
     color: COLORS.white,
-    fontFamily: 'monospace',
+  },
+  typingIndicator: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  typingText: {
+    fontSize: 14,
+    color: COLORS.navy,
+    marginLeft: 8,
+    fontStyle: 'italic',
   },
   inputContainer: {
     padding: 20,

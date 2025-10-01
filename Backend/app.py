@@ -311,100 +311,67 @@ def send_notification_endpoint():
     }), 200
 
 
-# -----------------------------
-# Chat trigger endpoints
-# -----------------------------
-@app.route('/users/<user_id>/chat-triggers', methods=['GET'])
-def get_chat_triggers(user_id):
-    """Get pending chat triggers for a user"""
+
+@app.route('/chat-with-gemini', methods=['POST'])
+def chat_with_gemini():
+    """Chat with Gemini AI for mental health support"""
     try:
-        chat_collection = db["chat_triggers"]
-
-        # Find all unread chat triggers for this user
-        triggers = list(chat_collection.find(
-            {"user_id": user_id, "read": {"$ne": True}},
-            {"_id": 0}
-        ).sort("timestamp", -1))
-
-        return jsonify({
-            "status": "success",
-            "triggers": triggers,
-            "count": len(triggers)
-        }), 200
-
-    except Exception as e:
-        return jsonify({
-            "status": "error",
-            "error_message": f"Failed to get chat triggers: {str(e)}"
-        }), 500
-
-
-@app.route('/users/<user_id>/chat-triggers/<trigger_id>/mark-read', methods=['POST'])
-def mark_chat_trigger_read(user_id, trigger_id):
-    """Mark a chat trigger as read"""
-    try:
-        chat_collection = db["chat_triggers"]
-
-        # Update the trigger to mark it as read
-        result = chat_collection.update_one(
-            {"user_id": user_id, "timestamp": trigger_id},
-            {"$set": {"read": True, "read_at": datetime.now().isoformat()}}
-        )
-
-        if result.matched_count == 0:
+        data = request.json
+        user_message = data.get('message', '')
+        context = data.get('context', '')
+        incident_id = data.get('incidentId', '')
+        
+        # For demo purposes, use a simple response system
+        # In production, this would integrate with actual Gemini API
+        lower_message = user_message.lower()
+        
+        # Crisis detection keywords
+        crisis_keywords = [
+            'not good', 'terrible', 'awful', 'horrible', 'can\'t cope', 
+            'overwhelmed', 'depressed', 'suicidal', 'want to die', 
+            'end it all', 'kill myself', 'harm myself'
+        ]
+        
+        if any(keyword in lower_message for keyword in crisis_keywords):
             return jsonify({
-                "status": "error",
-                "error_message": "Chat trigger not found"
-            }), 404
-
+                "status": "success",
+                "response": "CRISIS_DETECTED",
+                "severity": "high"
+            }), 200
+        
+        # Mental health concerns
+        concern_keywords = [
+            'struggling', 'hard time', 'difficult', 'stress', 'anxiety', 
+            'worried', 'scared', 'afraid', 'trouble', 'problem'
+        ]
+        
+        if any(keyword in lower_message for keyword in concern_keywords):
+            response = "I can hear that you're going through a tough time right now. It's completely understandable to feel this way after a difficult call. You're not alone in this. Would you like me to connect you with someone who can provide additional support?"
+        elif any(word in lower_message for word in ['okay', 'fine', 'alright', 'good']):
+            response = "I'm glad to hear you're doing okay. It's important to check in with yourself regularly after these kinds of calls. Is there anything specific about the call that's on your mind?"
+        else:
+            response = "Thank you for sharing that with me. It takes courage to talk about these experiences. How are you feeling physically right now? Are you getting enough rest?"
+        
+        # Store the conversation in database
+        conversation_collection = db["chat_conversations"]
+        conversation_collection.insert_one({
+            "incident_id": incident_id,
+            "user_message": user_message,
+            "ai_response": response,
+            "timestamp": datetime.utcnow(),
+            "context": context
+        })
+        
         return jsonify({
             "status": "success",
-            "message": "Chat trigger marked as read"
+            "response": response,
+            "severity": "normal"
         }), 200
-
+        
     except Exception as e:
         return jsonify({
             "status": "error",
-            "error_message": f"Failed to mark chat trigger as read: {str(e)}"
-        }), 500
-
-
-@app.route('/trigger-chat', methods=['POST'])
-def manual_trigger_chat():
-    """Manually trigger chat for testing purposes"""
-    data = request.json
-
-    # Validate required fields
-    required_fields = ["user_id", "call_id", "severity_score"]
-    for field in required_fields:
-        if field not in data:
-            return jsonify({"error": f"Missing field: {field}"}), 400
-
-    try:
-        # Immediately trigger chat without delay (for testing)
-        chat_trigger_payload = {
-            "user_id": data["user_id"],
-            "call_id": data["call_id"],
-            "severity_score": data["severity_score"],
-            "action": "trigger_chat",
-            "timestamp": datetime.now().isoformat(),
-            "manual_trigger": True
-        }
-
-        # Store the chat trigger event in database
-        chat_collection = db["chat_triggers"]
-        result = chat_collection.insert_one(chat_trigger_payload)
-
-        return jsonify({
-            "status": "success",
-            "message": "Chat triggered successfully",
-            "trigger_id": str(result.inserted_id)
-        }), 200
-
-    except Exception as e:
-        return jsonify({
-            "status": "error",
-            "error_message": f"Failed to trigger chat: {str(e)}"
+            "message": str(e)
         }), 500
 
 

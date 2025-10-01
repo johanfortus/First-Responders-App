@@ -1,6 +1,6 @@
-import { Text, View, StyleSheet, Image, ScrollView, Modal, TouchableOpacity, SafeAreaView } from "react-native";
+import { Text, View, StyleSheet, Image, ScrollView, Modal, TouchableOpacity, SafeAreaView, Animated } from "react-native";
 import { Link, useRouter } from "expo-router";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import makeCall from "../../utils/makeCall";
 import sendSMS from "../../utils/sendSMS";
 import ImportantNumbers from "../ImportantNumbers";
@@ -10,7 +10,206 @@ import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 export default function Index() {
 	const [numbersModalVisible, setNumbersModalVisible] = useState(false);
 	const [resourcesModalVisible, setResourcesModalVisible] = useState(false);
+	const [isFirstStartup, setIsFirstStartup] = useState(true);
+	const [userId, setUserId] = useState('demo_user_123'); // Replace with actual user ID
+	const [pollingActive, setPollingActive] = useState(true);
 	const router = useRouter();
+	
+	// Animation values
+	const bannerOpacity = useRef(new Animated.Value(0)).current;
+	const bannerScale = useRef(new Animated.Value(0.8)).current;
+	const textOpacity = useRef(new Animated.Value(0)).current;
+	const textTranslateY = useRef(new Animated.Value(20)).current;
+	const ambientPulse = useRef(new Animated.Value(1)).current;
+	
+	// Polling function for chat triggers
+	const pollChatTriggers = async () => {
+		if (!pollingActive) return; // Stop polling if inactive
+		
+		try {
+			const response = await fetch(`http://localhost:5001/users/${userId}/calls`, {
+				method: 'GET',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+			});
+			
+			if (response.ok) {
+				const data = await response.json();
+				console.log('🔍 Polling user calls...', data);
+				
+				// Check if there are new calls (DEMO: Always trigger for demo)
+				if (data.calls && data.calls.length > 0) {
+					// For demo purposes, check if we have any calls and trigger
+					const latestCall = data.calls.sort((a, b) => 
+						new Date(b.timestamp || b.createdAt).getTime() - new Date(a.timestamp || a.createdAt).getTime()
+					)[0];
+					
+					console.log('DEMO MODE: NEW CALL DETECTED!', latestCall);
+					
+					// Stop polling immediately
+					setPollingActive(false);
+					
+					// Navigate to PostCallPause first, then to chat
+					router.push({
+						pathname: "/(modals)/post-call-pause",
+						params: {
+							incidentId: latestCall._id || latestCall.callId || 'demo_call_123',
+							severity: latestCall.severity ? latestCall.severity.toString() : '0.85',
+							source: 'call_trigger',
+							triggerId: latestCall._id || 'demo_trigger_456'
+						}
+					});
+				}
+			}
+		} catch (error) {
+			console.error('Error polling user calls:', error);
+			
+			// DEMO MODE: Simulate a trigger after 10 seconds if no real endpoint
+			console.log('🔍 No real endpoint - simulating demo trigger after 10 seconds...');
+			
+			// Create a demo trigger after 10 seconds
+			setTimeout(() => {
+				if (pollingActive) {
+					console.log('🚨 DEMO MODE: Simulated trigger detected!');
+					
+					// Stop polling immediately
+					setPollingActive(false);
+					
+					// Navigate to PostCallPause with demo data
+					router.push({
+						pathname: "/(modals)/post-call-pause",
+						params: {
+							incidentId: 'demo_incident_123',
+							severity: '0.85',
+							source: 'demo_trigger',
+							triggerId: 'demo_trigger_456'
+						}
+					});
+				}
+			}, 10000); // 10 seconds delay
+		}
+	};
+	
+	// Function to acknowledge a trigger (mark as seen)
+	const acknowledgeTrigger = async (triggerId: string) => {
+		try {
+			await fetch(`/users/${userId}/chat-triggers/${triggerId}/acknowledge`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					// Add authentication headers if needed
+					// 'Authorization': `Bearer ${authToken}`,
+				},
+			});
+		} catch (error) {
+			console.error('Error acknowledging trigger:', error);
+		}
+	};
+	
+	useEffect(() => {
+		// Check if this is first startup (you could use AsyncStorage for persistence)
+		const hasSeenStartup = false; // Replace with actual check
+		setIsFirstStartup(!hasSeenStartup);
+		
+		if (!hasSeenStartup) {
+			// Startup animation sequence
+			Animated.sequence([
+				// Banner entrance
+				Animated.parallel([
+					Animated.timing(bannerOpacity, {
+						toValue: 1,
+						duration: 800,
+						useNativeDriver: true,
+					}),
+					Animated.spring(bannerScale, {
+						toValue: 1,
+						tension: 100,
+						friction: 8,
+						useNativeDriver: true,
+					}),
+				]),
+				// Text appearance
+				Animated.parallel([
+					Animated.timing(textOpacity, {
+						toValue: 1,
+						duration: 600,
+						useNativeDriver: true,
+					}),
+					Animated.timing(textTranslateY, {
+						toValue: 0,
+						duration: 600,
+						useNativeDriver: true,
+					}),
+				]),
+			]).start();
+			
+			// Set flag that user has seen startup
+			// AsyncStorage.setItem('hasSeenStartup', 'true');
+		} else {
+			// Regular entrance for returning users
+			bannerOpacity.setValue(1);
+			bannerScale.setValue(1);
+			textOpacity.setValue(1);
+			textTranslateY.setValue(0);
+		}
+		
+		// Ambient pulse animation
+		const createAmbientPulse = () => {
+			Animated.sequence([
+				Animated.timing(ambientPulse, {
+					toValue: 1.05,
+					duration: 3000,
+					useNativeDriver: true,
+				}),
+				Animated.timing(ambientPulse, {
+					toValue: 1,
+					duration: 3000,
+					useNativeDriver: true,
+				}),
+			]).start(() => createAmbientPulse());
+		};
+		
+		createAmbientPulse();
+	}, []);
+	
+	// Demo trigger effect - simpler approach
+	useEffect(() => {
+		// DEMO: Trigger after 10 seconds automatically
+		const demoTrigger = setTimeout(() => {
+			if (pollingActive) {
+				console.log('🚨 DEMO: Auto-triggering PostCallPause after 10 seconds');
+				setPollingActive(false);
+				
+				// Navigate to PostCallPause
+				console.log('Attempting navigation to PostCallPause...');
+				
+				try {
+					router.push({
+						pathname: "/(modals)/post-call-pause",
+						params: {
+							incidentId: 'demo_incident_123',
+							severity: '0.85',
+							source: 'demo_auto_trigger'
+						}
+					});
+				} catch (error) {
+					console.error('Navigation error:', error);
+					// Fallback: try direct route
+					router.push('/post-call-pause?incidentId=demo_incident_123&severity=0.85&source=demo_auto_trigger');
+				}
+			}
+		}, 10000); // 10 seconds
+		
+		// Also try the real polling for backup
+		pollChatTriggers();
+		const pollingInterval = setInterval(pollChatTriggers, 10000);
+		
+		return () => {
+			clearTimeout(demoTrigger);
+			clearInterval(pollingInterval);
+		};
+	}, [userId, pollingActive]);
 	return (
 		<SafeAreaView style={styles.container}>
 			<ScrollView 
@@ -18,19 +217,53 @@ export default function Index() {
 				contentContainerStyle={styles.scrollContentContainer}
 				showsVerticalScrollIndicator={false}
 			>
-				<Text style={styles.homeHeader}>Home</Text>
-				<View style={styles.homeBanner}>
-					<View style={styles.bannerTextContainer}>
-						<Text style={styles.bannerHeader}>Welcome Back Name</Text>
-						<Text style={styles.bannerSubHeader}>We're here for you</Text>
-					</View>
-					<Image source={require('../../assets/images/stroke.png')} style={styles.strokeGraphic}/>
+				<View style={styles.headerContainer}>
+					<Text style={styles.homeHeader}>Home</Text>
+					{pollingActive && (
+						<View style={styles.pollingIndicator}>
+							<View style={styles.pollingDot} />
+							<Text style={styles.pollingText}>Monitoring</Text>
+						</View>
+					)}
 				</View>
+				<Animated.View 
+					style={[
+						styles.homeBanner,
+						{
+							opacity: bannerOpacity,
+							transform: [
+								{ scale: bannerScale },
+								{ scale: ambientPulse }
+							]
+						}
+					]}
+				>
+					<Animated.View 
+						style={[
+							styles.bannerTextContainer,
+							{
+								opacity: textOpacity,
+								transform: [{ translateY: textTranslateY }]
+							}
+						]}
+					>
+						<Text style={styles.bannerHeader}>
+							{isFirstStartup ? "Welcome to ARC" : "Welcome Back Name"}
+						</Text>
+						<Text style={styles.bannerSubHeader}>
+							{isFirstStartup ? "Supporting first responders" : "We're here for you"}
+						</Text>
+					</Animated.View>
+					<Image source={require('../../assets/images/stroke.png')} style={styles.strokeGraphic}/>
+				</Animated.View>
 
 				{/* Test PostCallPause */}
 				<TouchableOpacity 
 					style={styles.testButton}
-					onPress={() => router.push("/(modals)/post-call-pause?incidentId=inc_123&severity=0.82")}
+					onPress={() => {
+						console.log('🧪 Test button pressed - navigating to PostCallPause');
+						router.push("/(modals)/post-call-pause?incidentId=inc_123&severity=0.82");
+					}}
 				>
 					<Text style={styles.testButtonText}>Test Post-Call Pause</Text>
 				</TouchableOpacity>
@@ -114,7 +347,7 @@ export default function Index() {
 									<Text style={styles.resourceCardDescription}>Demonstrates a peer support approach</Text>
 								</View>
 								<View style={styles.resourceIcon}>
-									<Ionicons name="handshake-outline" size={20} color="white" />
+									<Ionicons name="people-outline" size={20} color="white" />
 								</View>
 							</View>
 						</TouchableOpacity>
@@ -181,11 +414,37 @@ const styles = StyleSheet.create({
 	scrollContentContainer: {
 		paddingBottom: 80,
 	},
+	headerContainer: {
+		flexDirection: 'row',
+		justifyContent: 'space-between',
+		alignItems: 'center',
+		marginTop: 28,
+		marginLeft: 20,
+		marginRight: 20,
+	},
 	homeHeader: {
 		fontSize: 24,
 		fontWeight: '600',
-		marginTop: 28,
-		marginLeft: 20,
+	},
+	pollingIndicator: {
+		flexDirection: 'row',
+		alignItems: 'center',
+		backgroundColor: '#F66B0E',
+		paddingHorizontal: 12,
+		paddingVertical: 6,
+		borderRadius: 16,
+	},
+	pollingDot: {
+		width: 8,
+		height: 8,
+		borderRadius: 4,
+		backgroundColor: '#00FF00',
+		marginRight: 6,
+	},
+	pollingText: {
+		color: 'white',
+		fontSize: 12,
+		fontWeight: '600',
 	},
 	homeBanner: {
 		justifyContent: "flex-start",
@@ -195,6 +454,14 @@ const styles = StyleSheet.create({
 		width: "100%",
 		marginTop: 14,		
 		backgroundColor: "#F66B0E",
+		shadowColor: "#F66B0E",
+		shadowOffset: {
+			width: 0,
+			height: 8,
+		},
+		shadowOpacity: 0.3,
+		shadowRadius: 16,
+		elevation: 12,
 	},
 	visitLink: {
 		marginTop: 10,
