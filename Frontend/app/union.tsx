@@ -34,14 +34,14 @@ const UNION_LIST: Person[] = [
     name: "Dr. Michael Carter",
     specialty: "Trauma Therapy",
     rating: 4.5,
-    photo: "https://images.unsplash.com/photo-1573497161161-5c2f6f06c6f9?w=256&h=256&fit=crop",
+    photo: "https://media.istockphoto.com/id/1135099096/photo/i-love-doing-what-i-do.jpg?s=612x612&w=0&k=20&c=SQy-sHoVqPAycA3ZVlG3DOYXAqMwfrwxQeTllEYsL1Y=",
   },
   {
     id: "2",
     name: "Dr. Kenny Rivera",
     specialty: "Trauma Therapy",
     rating: 4.5,
-    photo: "https://images.unsplash.com/photo-1603415526960-f7e0328d13ff?w=256&h=256&fit=crop",
+    photo: "https://thumbs.dreamstime.com/b/male-therapist-using-digital-tablet-clinic-portrait-74517488.jpg",
   },
   {
     id: "3",
@@ -55,7 +55,7 @@ const UNION_LIST: Person[] = [
     name: "Dr. Anna Lopez",
     specialty: "PTSD & First Responder Support",
     rating: 4.5,
-    photo: "https://images.unsplash.com/photo-1544005316-04ce1f4a2a88?w=256&h=256&fit=crop",
+    photo: "https://img.freepik.com/free-photo/picture-woman-professional-psychologist-her-fifties-waiting-client-sitting-her-modern-office-armchair-holding-open-copybook-looking-with-serious-expression_344912-1950.jpg?semt=ais_incoming&w=740&q=80",
   },
   {
     id: "5",

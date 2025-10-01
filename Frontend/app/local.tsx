@@ -34,7 +34,7 @@ const LOCAL_LIST: Person[] = [
     name: "Dr. Michael Carter",
     specialty: "Trauma Therapy",
     rating: 4.5,
-    photo: "https://images.unsplash.com/photo-1573497161161-5c2f6f06c6f9?w=256&h=256&fit=crop",
+    photo: "https://media.istockphoto.com/id/1135099096/photo/i-love-doing-what-i-do.jpg?s=612x612&w=0&k=20&c=SQy-sHoVqPAycA3ZVlG3DOYXAqMwfrwxQeTllEYsL1Y=",
   },
   {
     id: "2",

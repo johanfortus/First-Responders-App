@@ -19,7 +19,7 @@ export default function Resource3() {
     "https://www.iaffrecoverycenter.com/continuing-education/approaching-a-member-in-need";
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.bg }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.bg }} edges={['bottom']}>
       <View style={s.top}>
         <Pressable onPress={() => r.back()} style={s.iconBtn}>
           <Ionicons name="chevron-back" size={24} color={COLORS.title} />
